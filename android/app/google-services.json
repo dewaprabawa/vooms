@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "86391809946",
+    "project_id": "baboon-9953e",
+    "storage_bucket": "baboon-9953e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:86391809946:android:3e542ed38def342119bc23",
+        "android_client_info": {
+          "package_name": "com.example.vooms"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "86391809946-v376gjambqan40tk651t1dbfqllrm4el.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyABKzhgbBljp4bOH5cMLx53-x1K0bgaVDw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "86391809946-v376gjambqan40tk651t1dbfqllrm4el.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
