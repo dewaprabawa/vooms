@@ -4,6 +4,8 @@ import 'package:formz/formz.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:vooms/authentications/auth_helpers/wording_auth_constants.dart';
 import 'package:vooms/authentications/pages/sign_up/signup_cubit/sign_up_cubit.dart';
+import 'package:vooms/shareds/components/m_filled_button.dart';
+import 'package:vooms/shareds/components/m_outline_button.dart';
 import 'package:vooms/shareds/components/m_text_field.dart';
 import 'package:vooms/shareds/general_helper/ui_asset_constant.dart';
 import 'package:vooms/shareds/general_helper/ui_color_constants.dart';
@@ -147,23 +149,16 @@ class _SignUpPageState extends State<SignUpPage> {
                 isLabelRequired: true,
               ),
               const SizedBox(height: 32.0),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      primary: state.status.isInvalid || state.status.isPure
-                          ? Colors.grey
+              MfilledButton(
+                size: const Size(double.infinity, 45),
+                backgroundColor: state.status.isInvalid || state.status.isPure
+                          ? UIColorConstant.nativeGrey
                           : UIColorConstant.primaryBlue,
-                      fixedSize: const Size(double.infinity, 45),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12))),
-                  onPressed: () async {
-                    await context.read<SignUpCubit>().signUp();
-                  },
-                  child: Text('Daftar Sekarang',
-                      style: GoogleFonts.dmMono(
-                          color: Colors.white, fontSize: 13)),
-                ),
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                onPressed: () async {
+                      await context.read<SignUpCubit>().signUp();
+                },
+                text: 'Daftar Sekarang',
               ),
               const SizedBox(height: 5.0),
               Center(
@@ -172,32 +167,22 @@ class _SignUpPageState extends State<SignUpPage> {
                         GoogleFonts.dmMono(color: Colors.grey, fontSize: 13)),
               ),
               const SizedBox(height: 5.0),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: OutlinedButton(
-                  style: ElevatedButton.styleFrom(
-                      fixedSize: const Size(double.infinity, 45),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12))),
-                  onPressed: () async {},
-                  child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.asset(UIAssetConstants.googleButtonImage),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Text('Google',
-                            style: GoogleFonts.dmMono(
-                                color: Colors.grey, fontSize: 13))
-                      ]),
-                ),
+              MoutlineButoon(
+                size: const Size(double.infinity, 45),
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                text: "Google",
+                leadingChild: Image.asset(UIAssetConstants.googleButtonImage),
+                onPressed: (){
+
+                },
               ),
               const SizedBox(
                 height: 20,
               ),
               TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    
+                  },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -212,7 +197,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         style: GoogleFonts.dmMono(
                             color: UIColorConstant.primaryGreen,
                             fontSize: 13,
-                            fontWeight: FontWeight.bold),  
+                            fontWeight: FontWeight.bold),
                       )
                     ],
                   ))

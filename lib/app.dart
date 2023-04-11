@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:vooms/authentications/pages/sign_in/sign_in_page.dart';
 import 'package:vooms/on_boarding/on_boarding_page.dart';
 import 'package:vooms/shareds/general_helper/ui_color_constants.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -23,7 +24,7 @@ class App extends StatelessWidget {
           errorColor: UIColorConstant.primaryRed,
           fontFamily: GoogleFonts.dmMono().toString()
         ),
-        home: const SignUpPage(),
+        home: const SignInPage(),
       ),
     );
   }
