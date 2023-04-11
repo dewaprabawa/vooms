@@ -26,4 +26,7 @@ class UIColorConstant {
   static MaterialColor materialPrimaryRed = MaterialColor(0xffEA929A, _color);
   static const Color primaryBlack = Color(0xff000000);
   static const Color accentGrey1 = Color(0xffD9D9D9);
+  static const Color nativeGrey = Colors.grey;
+  static const Color nativeWhite = Colors.white;
+  static const Color nativeBlack = Colors.black;
 }
