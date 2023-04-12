@@ -43,8 +43,14 @@ class _SignUpPageState extends State<SignUpPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: BlocConsumer<SignUpCubit, SignUpState>(listener: (context, state) {
-        if (state.status == FormzStatus.invalid) {
-          print("The textfield does not complete");
+        if (state.status == FormzStatus.submissionFailure) {
+          const snackBar = SnackBar(
+            content: Text('Yay! A SnackBar!'),
+          );
+
+// Find the ScaffoldMessenger in the widget tree
+// and use it to show a SnackBar.
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
         }
       }, builder: (context, state) {
         return SafeArea(
@@ -153,11 +159,11 @@ class _SignUpPageState extends State<SignUpPage> {
                 width: double.infinity,
                 height: 45,
                 backgroundColor: state.status.isInvalid || state.status.isPure
-                          ? UIColorConstant.nativeGrey
-                          : UIColorConstant.primaryBlue,
+                    ? UIColorConstant.nativeGrey
+                    : UIColorConstant.primaryBlue,
                 margin: const EdgeInsets.symmetric(horizontal: 20),
                 onPressed: () async {
-                      await context.read<SignUpCubit>().signUp();
+                  await context.read<SignUpCubit>().signUp();
                 },
                 text: 'Daftar Sekarang',
               ),
@@ -174,36 +180,32 @@ class _SignUpPageState extends State<SignUpPage> {
                 margin: const EdgeInsets.symmetric(horizontal: 20),
                 text: "Google",
                 leadingChild: Image.asset(UIAssetConstants.googleButtonImage),
-                onPressed: (){
-
-                },
+                onPressed: () {},
               ),
               const SizedBox(
                 height: 20,
               ),
               TextButton(
-                  onPressed: () {
-                    
-                  },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text("Sudah mempunyai akun?",
-                          style: GoogleFonts.dmMono(
-                              color: Colors.black, fontSize: 13)),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Text(
-                        "Login!",
+                onPressed: () {},
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text("Sudah mempunyai akun?",
                         style: GoogleFonts.dmMono(
-                            color: UIColorConstant.primaryGreen,
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold),
-                      )
-                    ],
-                  ),
-                  )
+                            color: Colors.black, fontSize: 13)),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Text(
+                      "Login!",
+                      style: GoogleFonts.dmMono(
+                          color: UIColorConstant.primaryGreen,
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold),
+                    )
+                  ],
+                ),
+              )
             ],
           ),
         ));
