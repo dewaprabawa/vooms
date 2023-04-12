@@ -150,7 +150,8 @@ class _SignUpPageState extends State<SignUpPage> {
               ),
               const SizedBox(height: 32.0),
               MfilledButton(
-                size: const Size(double.infinity, 45),
+                width: double.infinity,
+                height: 45,
                 backgroundColor: state.status.isInvalid || state.status.isPure
                           ? UIColorConstant.nativeGrey
                           : UIColorConstant.primaryBlue,
@@ -168,7 +169,8 @@ class _SignUpPageState extends State<SignUpPage> {
               ),
               const SizedBox(height: 5.0),
               MoutlineButoon(
-                size: const Size(double.infinity, 45),
+                width: double.infinity,
+                height: 45,
                 margin: const EdgeInsets.symmetric(horizontal: 20),
                 text: "Google",
                 leadingChild: Image.asset(UIAssetConstants.googleButtonImage),
@@ -200,7 +202,8 @@ class _SignUpPageState extends State<SignUpPage> {
                             fontWeight: FontWeight.bold),
                       )
                     ],
-                  ))
+                  ),
+                  )
             ],
           ),
         ));
