@@ -180,7 +180,9 @@ class _SignUpPageState extends State<SignUpPage> {
                 margin: const EdgeInsets.symmetric(horizontal: 20),
                 text: "Google",
                 leadingChild: Image.asset(UIAssetConstants.googleButtonImage),
-                onPressed: () {},
+                onPressed: () async {
+                  await context.read<SignUpCubit>().loginWithGoogle();
+                },
               ),
               const SizedBox(
                 height: 20,

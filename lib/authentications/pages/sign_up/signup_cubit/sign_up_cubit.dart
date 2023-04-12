@@ -96,11 +96,21 @@ class SignUpCubit extends Cubit<SignUpState> {
     ));
   }
 
+  Future<void> loginWithGoogle() async {
+     emit(state.copyWith(status: FormzStatus.submissionInProgress));
+      final data = await authRepository.googleSignIn();
+      data.fold((error) {
+        String errorMessage = (error as AuthenticationError).errorMessage;
+        emit(state.copyWith(
+            errorMessage: errorMessage, status: FormzStatus.submissionFailure));
+      }, (_) {
+        emit(state.copyWith(status: FormzStatus.submissionSuccess));
+      });
+  }
+
   Future<void> signUp() async {
-    print("1");
     if (state.status.isInvalid) return;
     emit(state.copyWith(status: FormzStatus.submissionInProgress));
-    try {
       final data = await authRepository.signUpUser(
           fullname: state.fullName.value,
           phone: state.phoneNumber.value,
@@ -113,9 +123,5 @@ class SignUpCubit extends Cubit<SignUpState> {
       }, (_) {
         emit(state.copyWith(status: FormzStatus.submissionSuccess));
       });
-    } on SignUpWithEmailAndPasswordException catch (e) {
-      print(e.message);
-      emit(state.copyWith(status: FormzStatus.submissionFailure));
-    }
   }
 }
