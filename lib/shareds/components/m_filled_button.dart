@@ -9,7 +9,8 @@ class MfilledButton extends StatelessWidget {
       required this.text,
       this.margin = EdgeInsets.zero,
       this.backgroundColor,
-      this.size = const Size(double.infinity, 45),
+      this.height = 0,
+      this.width = double.infinity,
       this.textColor,
       this.textSize = 13})
       : super(key: key);
@@ -17,7 +18,8 @@ class MfilledButton extends StatelessWidget {
   final String text;
   final EdgeInsetsGeometry margin;
   final Color? backgroundColor;
-  final Size size;
+  final double width;
+  final double height;
   final Color? textColor;
   final double textSize;
 
@@ -27,8 +29,8 @@ class MfilledButton extends StatelessWidget {
       padding: margin,
       child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-              primary: backgroundColor,
-              fixedSize: size,
+              backgroundColor: backgroundColor,
+              fixedSize: Size(width, height),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12))),
           onPressed: onPressed,

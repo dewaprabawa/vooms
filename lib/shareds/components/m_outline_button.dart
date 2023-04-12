@@ -8,7 +8,8 @@ class MoutlineButoon extends StatelessWidget {
       {Key? key,
       required this.text,
       this.margin = const EdgeInsets.symmetric(horizontal: 20),
-      this.size = const Size(double.infinity, 45),
+      this.height = 0,
+      this.width = double.infinity,
       this.onPressed,
       this.textColor,
       this.textSize = 13, 
@@ -17,7 +18,8 @@ class MoutlineButoon extends StatelessWidget {
       })
       : super(key: key);
   final EdgeInsetsGeometry margin;
-  final Size? size;
+  final double height;
+  final double width;
   final void Function()? onPressed;
   final String text;
   final Color? textColor;
@@ -31,7 +33,7 @@ class MoutlineButoon extends StatelessWidget {
       padding: margin,
       child: OutlinedButton(
         style: ElevatedButton.styleFrom(
-            fixedSize: size,
+            fixedSize: Size(width, height),
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12))),
         onPressed: onPressed,
