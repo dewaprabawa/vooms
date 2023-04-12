@@ -2,16 +2,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:vooms/authentications/repository/failure.dart';
 import 'package:vooms/authentications/repository/user_model.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 abstract class AuthService {
   Stream<UserModel?> get onAuthStateChanged;
-  Future<UserModel> signInAnonymously();
-  Future<UserModel?> signInUser(
-      String email, String password);
-  Future<UserModel?> signUpUser(
-      String email, String password);
-  Future<UserModel> signInWithGoogle();
-  Future<UserModel> signInWithFacebook();
+  Future<UserModel?> signInAnonymously();
+  Future<UserModel?> signInUser(String email, String password);
+  Future<UserModel?> signUpUser(String email, String password);
+  Future<UserModel?> signInWithGoogle();
+  Future<UserModel?> signInWithFacebook();
   Future<void> signOut();
   void dispose();
 
@@ -20,23 +19,19 @@ abstract class AuthService {
 
 class AuthServicesImpl extends AuthService {
   final FirebaseAuth _firebaseAuth;
+  final GoogleSignIn _googleSignIn;
 
-  AuthServicesImpl(this._firebaseAuth);
-
-
-  @override
-  void dispose() {
-    
-  }
-
+  AuthServicesImpl(this._firebaseAuth, this._googleSignIn);
 
   @override
-  Future<UserModel?> signUpUser(
-      String email, String password) async {
+  void dispose() {}
+
+  @override
+  Future<UserModel?> signUpUser(String email, String password) async {
     try {
       final credential = await _firebaseAuth.createUserWithEmailAndPassword(
           email: email, password: password);
-        return Mapper.toModel(credential.user!);
+      return Mapper.toModel(credential.user!);
     } on FirebaseAuthException catch (exc) {
       debugPrint(exc.code + "===AUTH===");
       throw SignUpWithEmailAndPasswordException.fromCode(exc.code);
@@ -44,8 +39,7 @@ class AuthServicesImpl extends AuthService {
   }
 
   @override
-  Future<UserModel?> signInUser(
-      String email, String password) async {
+  Future<UserModel?> signInUser(String email, String password) async {
     try {
       final credential = await _firebaseAuth.signInWithEmailAndPassword(
           email: email, password: password);
@@ -55,38 +49,48 @@ class AuthServicesImpl extends AuthService {
     }
   }
 
-
   @override
   Future<void> signOut() async {
-    try{
+    try {
       await _firebaseAuth.signOut();
-    }catch(_){
+    } catch (_) {
       throw SignOutException();
     }
   }
 
-
   @override
-  Future<UserModel> signInAnonymously() {
+  Future<UserModel?> signInAnonymously() {
     // TODO: implement signInAnonymously
     throw UnimplementedError();
   }
 
   @override
-  Future<UserModel> signInWithFacebook() {
+  Future<UserModel?> signInWithFacebook() {
     // TODO: implement signInWithFacebook
     throw UnimplementedError();
   }
 
   @override
-  Future<UserModel> signInWithGoogle() {
-    // TODO: implement signInWithGoogle
-    throw UnimplementedError();
+  Future<UserModel?> signInWithGoogle() async {
+    try {
+      final googleUser = await _googleSignIn.signIn();
+      final googleAuth = await googleUser!.authentication;
+      final AuthCredential authCredential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+      final credential = await _firebaseAuth.signInWithCredential(authCredential);
+      return Mapper.toModel(credential.user!);
+    } on FirebaseAuthException catch (e) {
+      throw LogInWithGoogleException.fromCode(e.code);
+    } catch (_) {
+      throw const LogInWithGoogleException();
+    }
   }
-  
+
   @override
-  Stream<UserModel> get onAuthStateChanged{
-     return _firebaseAuth.authStateChanges().map((user) {
+  Stream<UserModel> get onAuthStateChanged {
+    return _firebaseAuth.authStateChanges().map((user) {
       return Mapper.toModel(user!);
     });
   }
