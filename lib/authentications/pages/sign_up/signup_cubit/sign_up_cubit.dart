@@ -6,33 +6,45 @@ import 'package:vooms/authentications/pages/sign_up/signup_cubit/validation_mode
 import 'package:vooms/authentications/pages/sign_up/signup_cubit/validation_models/full_name.dart';
 import 'package:vooms/authentications/pages/sign_up/signup_cubit/validation_models/password.dart';
 import 'package:vooms/authentications/pages/sign_up/signup_cubit/validation_models/phone_numbar.dart';
-
-
+import 'package:vooms/authentications/repository/auth_repository.dart';
+import 'package:vooms/authentications/repository/failure.dart';
 
 part 'sign_up_state.dart';
 
 class SignUpCubit extends Cubit<SignUpState> {
-  SignUpCubit() : super(const SignUpState());
+  SignUpCubit(this.authRepository) : super(const SignUpState());
 
-   void onSecureOnChanged(){
-    emit(state.copyWith(
-      isSecurity: !state.isSecurity
-    ));
-   }
+  final AuthRepository authRepository;
 
-   void fullNameChanged(String value) {
+  void onSecureOnChanged() {
+    emit(state.copyWith(isSecurity: !state.isSecurity));
+  }
+
+  void fullNameChanged(String value) {
     final fullName = FullName.dirty(value);
     emit(state.copyWith(
       fullName: fullName,
-      status:  Formz.validate([fullName, state.email, state.password, state.confirmPassword, state.phoneNumber]),
+      status: Formz.validate([
+        fullName,
+        state.email,
+        state.password,
+        state.confirmPassword,
+        state.phoneNumber
+      ]),
     ));
   }
 
-  void phoneNumberChanged(String value){
+  void phoneNumberChanged(String value) {
     final phoneNumber = PhoneNumber.dirty(value);
     emit(state.copyWith(
       phoneNumber: phoneNumber,
-      status:  Formz.validate([phoneNumber, state.fullName, state.email, state.password, state.confirmPassword]),
+      status: Formz.validate([
+        phoneNumber,
+        state.fullName,
+        state.email,
+        state.password,
+        state.confirmPassword
+      ]),
     ));
   }
 
@@ -40,37 +52,69 @@ class SignUpCubit extends Cubit<SignUpState> {
     final email = Email.dirty(value);
     emit(state.copyWith(
       email: email,
-      status:  Formz.validate([state.fullName, email, state.password, state.confirmPassword, state.phoneNumber]),
+      status: Formz.validate([
+        state.fullName,
+        email,
+        state.password,
+        state.confirmPassword,
+        state.phoneNumber
+      ]),
     ));
   }
 
   void passwordChanged(String value) {
     final password = Password.dirty(value);
-    final confirmPassword = ConfirmPassword.dirty(password: value, value: state.confirmPassword.password);
+    final confirmPassword = ConfirmPassword.dirty(
+        password: value, value: state.confirmPassword.password);
     emit(state.copyWith(
       password: password,
       confirmPassword: confirmPassword,
-      status:  Formz.validate([state.fullName, state.email, password, confirmPassword, state.phoneNumber]),
+      status: Formz.validate([
+        state.fullName,
+        state.email,
+        password,
+        confirmPassword,
+        state.phoneNumber
+      ]),
     ));
   }
 
   void confirmPasswordChanged(String value) {
     final password = Password.dirty(state.password.value);
-    final confirmPassword = ConfirmPassword.dirty(password:password.value, value: value);
+    final confirmPassword =
+        ConfirmPassword.dirty(password: password.value, value: value);
     emit(state.copyWith(
       password: password,
       confirmPassword: confirmPassword,
-      status: Formz.validate([state.fullName, state.email, password, confirmPassword, state.phoneNumber]),
+      status: Formz.validate([
+        state.fullName,
+        state.email,
+        password,
+        confirmPassword,
+        state.phoneNumber
+      ]),
     ));
   }
 
   Future<void> signUp() async {
+    print("1");
     if (state.status.isInvalid) return;
     emit(state.copyWith(status: FormzStatus.submissionInProgress));
     try {
-      // Call your sign up API here
-      emit(state.copyWith(status: FormzStatus.submissionSuccess));
-    } catch (e) {
+      final data = await authRepository.signUpUser(
+          fullname: state.fullName.value,
+          phone: state.phoneNumber.value,
+          email: state.email.value,
+          password: state.password.value);
+      data.fold((error) {
+        String errorMessage = (error as AuthenticationError).errorMessage;
+        emit(state.copyWith(
+            errorMessage: errorMessage, status: FormzStatus.submissionFailure));
+      }, (_) {
+        emit(state.copyWith(status: FormzStatus.submissionSuccess));
+      });
+    } on SignUpWithEmailAndPasswordException catch (e) {
+      print(e.message);
       emit(state.copyWith(status: FormzStatus.submissionFailure));
     }
   }
