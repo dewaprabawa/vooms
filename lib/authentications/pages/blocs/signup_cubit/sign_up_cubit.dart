@@ -1,11 +1,11 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:formz/formz.dart';
-import 'package:vooms/authentications/pages/sign_up/signup_cubit/validation_models/confirm_password.dart';
-import 'package:vooms/authentications/pages/sign_up/signup_cubit/validation_models/email.dart';
-import 'package:vooms/authentications/pages/sign_up/signup_cubit/validation_models/full_name.dart';
-import 'package:vooms/authentications/pages/sign_up/signup_cubit/validation_models/password.dart';
-import 'package:vooms/authentications/pages/sign_up/signup_cubit/validation_models/phone_numbar.dart';
+import 'package:vooms/authentications/pages/blocs/signin_cubit/validation_models/email.dart';
+import 'package:vooms/authentications/pages/blocs/signup_cubit/validation_models/confirm_password.dart';
+import 'package:vooms/authentications/pages/blocs/signup_cubit/validation_models/full_name.dart';
+import 'package:vooms/authentications/pages/blocs/signup_cubit/validation_models/password.dart';
+import 'package:vooms/authentications/pages/blocs/signup_cubit/validation_models/phone_numbar.dart';
 import 'package:vooms/authentications/repository/auth_repository.dart';
 import 'package:vooms/authentications/repository/failure.dart';
 

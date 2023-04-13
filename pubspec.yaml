@@ -45,6 +45,7 @@ dependencies:
   firebase_auth: ^4.3.0
   cloud_firestore: ^4.5.0
   google_sign_in: ^6.1.0
+  hive_flutter: ^1.1.0
   
 
 dev_dependencies:

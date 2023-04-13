@@ -1,25 +1,18 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:vooms/authentications/repository/db_service.dart';
 import 'package:vooms/authentications/repository/failure.dart';
-
-abstract class DBservice<T> {
-  Future<void> save(Map<String,dynamic> map);
-  Future<void> update(Map<String,dynamic> map);
-  Future<void> delete(String id);
-  Future<T> retrieve(String key);
-}
-
 
 const String collectionAuthKey = "user_store";
 
-class UserStoreImpl implements DBservice<List<Map<String, dynamic>>> {
+class UserServiceRemoteImpl implements DBservice<List<Map<String, dynamic>>> {
 
   late CollectionReference collectionReference;
 
   final FirebaseFirestore _firebaseFirestore;
 
-  UserStoreImpl(this._firebaseFirestore){
+  UserServiceRemoteImpl(this._firebaseFirestore){
     collectionReference = _firebaseFirestore.collection(collectionAuthKey);
   }
 
