@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:formz/formz.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:vooms/authentications/auth_helpers/wording_auth_constants.dart';
-import 'package:vooms/authentications/pages/sign_up/signup_cubit/sign_up_cubit.dart';
+import 'package:vooms/authentications/pages/blocs/signup_cubit/sign_up_cubit.dart';
 import 'package:vooms/shareds/components/m_filled_button.dart';
 import 'package:vooms/shareds/components/m_outline_button.dart';
 import 'package:vooms/shareds/components/m_text_field.dart';

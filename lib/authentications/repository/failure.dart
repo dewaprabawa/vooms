@@ -1,15 +1,15 @@
 import 'package:equatable/equatable.dart';
 
-abstract class Failure extends Equatable {
+class Failure extends Equatable {
+  final String errorMessage;
+  const Failure({required this.errorMessage});
   @override
   List<Object> get props => [];
 }
 
 
 class AuthenticationError extends Failure {
-  final String errorMessage;
-
-  AuthenticationError(this.errorMessage);
+  AuthenticationError({required super.errorMessage});
 }
 
 class SignUpWithEmailAndPasswordException implements Exception {
