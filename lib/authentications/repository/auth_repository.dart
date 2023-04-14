@@ -1,9 +1,11 @@
 import 'package:dartz/dartz.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:vooms/authentications/repository/auth_service.dart';
-import 'package:vooms/authentications/repository/auth_service_impl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vooms/authentications/repository/db_service.dart';
 import 'package:vooms/authentications/repository/failure.dart';
+import 'package:vooms/authentications/repository/user_data_remote_impl.dart';
 import 'package:vooms/authentications/repository/user_entity.dart';
 import 'package:vooms/authentications/repository/user_model.dart';
 
@@ -30,9 +32,13 @@ abstract class AuthRepository {
 
   // A stream that listens for changes in the current user's authentication state.
   Stream<bool> listenToUserChanges();
+
+  Future<void> saveUserCredentials(String email, String password, bool rememberMe);
+
+  Future<Map<String, dynamic>> getUserCredentials();
 }
 
-class AuthRepositoryImpl implements AuthRepository {
+class AuthRepositoryImpl with CheckMethod implements AuthRepository {
   final AuthService _authService;
   final DBservice _authStoreRemote;
   final DBservice _authStoreLocal;
@@ -48,6 +54,15 @@ class AuthRepositoryImpl implements AuthRepository {
       required String password,
       required String phone}) async {
     try {
+      // Check if the user's email address is already stored in Firestore
+      bool isEmailEverRegistered = await _checkDataExists(
+          fieldKey: "email", valueToCheck: email, collectionKey: "user_data");
+
+      if (isEmailEverRegistered) {
+        return left(
+            const AuthenticationError(errorMessage: "This Email Already used"));
+      }
+
       final model = await _authService.signUpUser(email,
           password); // Call the signUpUser function of AuthService to register the user.
       _saveCredentialUser(model, fullname, phone);
@@ -58,7 +73,7 @@ class AuthRepositoryImpl implements AuthRepository {
       return left(AuthenticationError(
           errorMessage: e
               .message)); // Return an error message using the custom Failure class.
-    } on AuthStoreException catch (e) {
+    } on UserStoreException catch (e) {
       debugPrint(e.toString()); // Print the error message to the console.
       return left(AuthenticationError(
           errorMessage: e
@@ -75,7 +90,7 @@ class AuthRepositoryImpl implements AuthRepository {
       return right(unit);
     } on SignInWithEmailAndPasswordException catch (e) {
       return left(AuthenticationError(errorMessage: e.message));
-    } on AuthStoreException catch (e) {
+    } on UserStoreException catch (e) {
       return left(AuthenticationError(errorMessage: e.toString()));
     }
   }
@@ -94,13 +109,25 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, Unit>> googleSignIn() async {
     try {
+
       final model = await _authService.signInWithGoogle();
+
+      // Check if the user's email address is already stored in Firestore
+       bool isEmailEverRegistered = await _checkDataExists(
+          fieldKey: "email", valueToCheck: model!.email, collectionKey: "user_data");
+
+      if (isEmailEverRegistered) {
+        return left(
+            const AuthenticationError(errorMessage: "This Email Already used"));
+      }
+
+       // Save the user's credentials to Firestore
       _saveCredentialUser(model, null, null);
       debugPrint("==googleSignIn==");
       return right(unit);
     } on LogInWithGoogleException catch (e) {
       return left(AuthenticationError(errorMessage: e.message));
-    } on AuthStoreException catch (e) {
+    } on UserStoreException catch (e) {
       return left(AuthenticationError(errorMessage: e.toString()));
     }
   }
@@ -112,6 +139,28 @@ class AuthRepositoryImpl implements AuthRepository {
     });
   }
 
+  @override
+  Future<void> saveUserCredentials(String email, String password, bool rememberMe) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // Store the user's email and password in shared preferences
+    await prefs.setString('email', email);
+    await prefs.setString('password', password);
+
+    // Store the rememberMe value in shared preferences
+    await prefs.setBool('rememberMe', rememberMe);
+  }
+
+  Future<Map<String, dynamic>> getUserCredentials() async {
+  final prefs = await SharedPreferences.getInstance();
+
+  final email = prefs.getString('email');
+  final password = prefs.getString('password');
+  final rememberMe = prefs.getBool('rememberMe') ?? false;
+
+  return {'email': email, 'password': password, 'rememberMe': rememberMe};
+}
+
   void _saveCredentialUser(UserModel? model, String? fullname, String? phone) {
     if (model != null) {
       // Save the user details to the database if the user registration was successful.
@@ -121,16 +170,27 @@ class AuthRepositoryImpl implements AuthRepository {
                 uid: model.uid,
                 email: model.email,
                 photoUrl: model.photoUrl,
-                displayName: model.uid)
+                displayName: model.displayName)
             .toMap()),
         _authStoreLocal.save(UserEntity(
                 fullname ?? model.displayName, phone ?? "",
                 uid: model.uid,
                 email: model.email,
                 photoUrl: model.photoUrl,
-                displayName: model.uid)
+                displayName: model.displayName)
             .toMap()),
       ]);
     }
+  }
+
+  @override
+  Future<bool> _checkDataExists(
+      {required String fieldKey,
+      required String valueToCheck,
+      required String collectionKey}) {
+    return super.checkDataExists(
+        fieldKey: fieldKey,
+        valueToCheck: valueToCheck,
+        collectionKey: collectionKey);
   }
 }

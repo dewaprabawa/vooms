@@ -5,14 +5,13 @@ import 'package:vooms/authentications/pages/blocs/signin_cubit/validation_models
 import 'package:vooms/authentications/pages/blocs/signin_cubit/validation_models/password.dart';
 import 'package:vooms/authentications/repository/auth_repository.dart';
 
-
 part 'sign_in_state.dart';
 
 class SignInCubit extends Cubit<SignInState> {
   SignInCubit(this._authRepository) : super(const SignInState());
 
   final AuthRepository _authRepository;
- 
+
   void emailChanged(String value) {
     final email = Email.dirty(value);
     emit(state.copyWith(
@@ -24,7 +23,7 @@ class SignInCubit extends Cubit<SignInState> {
     ));
   }
 
-   void onSecureOnChanged() {
+  void onSecureOnChanged() {
     emit(state.copyWith(isSecurity: !state.isSecurity));
   }
 
@@ -39,16 +38,22 @@ class SignInCubit extends Cubit<SignInState> {
     ));
   }
 
-    Future<void> signInUser() async {
-     if(state.status.isInvalid) return; 
-     emit(state.copyWith(currentStatus: FormzStatus.submissionInProgress));
-      final data = await _authRepository.signInUser(email: state.email.value, password: state.password.value);
-      data.fold((error) {
-        emit(state.copyWith(
-            errorMessage: error.errorMessage, currentStatus: FormzStatus.submissionFailure));
-      }, (_) {
-         emit(state.copyWith(currentStatus: FormzStatus.submissionSuccess));
-      });
-  }
+  Future<void> signInUser({bool rememberMe = false}) async {
+    if (state.status.isInvalid) return;
+    emit(state.copyWith(currentStatus: FormzStatus.submissionInProgress));
+    final data = await _authRepository.signInUser(
+        email: state.email.value, password: state.password.value);
+    data.fold((error) {
+      emit(state.copyWith(
+          errorMessage: error.errorMessage,
+          currentStatus: FormzStatus.submissionFailure));
+    }, (_) {
+      // If the "Remember Me" option is selected, save the user's credentials to local storage
+      if (rememberMe) {
+        _authRepository.saveUserCredentials(state.email.value,state.password.value, rememberMe);
+      }
 
+      emit(state.copyWith(currentStatus: FormzStatus.submissionSuccess));
+    });
+  }
 }

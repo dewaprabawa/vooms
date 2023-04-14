@@ -1,6 +1,8 @@
 
+import 'package:dartz/dartz.dart';
 import 'package:vooms/authentications/repository/db_service.dart';
-import 'package:vooms/authentications/repository/user_data_local_impl.dart';
+import 'package:vooms/authentications/repository/failure.dart';
+import 'package:vooms/authentications/repository/user_entity.dart';
 import 'package:vooms/authentications/repository/user_model.dart';
 import 'package:vooms/authentications/repository/user_repository.dart';
 
@@ -13,15 +15,23 @@ class UserRepositoryImpl implements UserRepository {
     this._userDataRemote, 
     this._userDataLocal);
 
-  @override
-  Future<UserModel> getUser() async {
-     List<Map<dynamic,String>> data = await _userDataLocal.retrieve("");
-     return Mapper.toEntity(data.first);
+ @override
+Future<Either<Failure, UserEntity>> getUser() async {
+  try {
+    final data = await _userDataRemote.retrieve();
+    final user = UserEntity.fromMap(data);
+    return Right(user);
+  } on UserStoreException {
+    return const Left(UserDataError(errorMessage: 'Failed to retrieve user data'));
   }
+}
+
 
   @override
-  Future<UserModel> uploadImageUser() {
+  Future<Either<Failure, UserEntity>> uploadImageUser() {
     // TODO: implement uploadImageUser
     throw UnimplementedError();
   }
+
+
 }

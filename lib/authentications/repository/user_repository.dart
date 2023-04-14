@@ -1,7 +1,9 @@
-import 'package:vooms/authentications/repository/user_model.dart';
+import 'package:dartz/dartz.dart';
+import 'package:vooms/authentications/repository/failure.dart';
+import 'package:vooms/authentications/repository/user_entity.dart';
 
 
 abstract class UserRepository {
-  Future<UserModel> getUser();
-  Future<UserModel> uploadImageUser();
+  Future<Either<Failure,UserEntity>> getUser();
+  Future<Either<Failure,UserEntity>> uploadImageUser();
 }

@@ -22,7 +22,7 @@ class AuthServicesImpl extends AuthService {
     try {
       final credential = await _firebaseAuth.createUserWithEmailAndPassword(
           email: email, password: password);
-      return Mapper.toModel(credential.user!);
+      return credential.user?.toModel;
     } on FirebaseAuthException catch (exc) {
       debugPrint(exc.code + "===AUTH===");
       throw SignUpWithEmailAndPasswordException.fromCode(exc.code);
@@ -35,7 +35,7 @@ class AuthServicesImpl extends AuthService {
     try {
       final credential = await _firebaseAuth.signInWithEmailAndPassword(
           email: email, password: password);
-      return Mapper.toModel(credential.user!);
+      return credential.user?.toModel;
     } on FirebaseAuthException catch (exc) {
        log(exc.code); 
       throw SignInWithEmailAndPasswordException.fromCode(exc.code);
@@ -73,7 +73,7 @@ class AuthServicesImpl extends AuthService {
         idToken: googleAuth.idToken,
       );
       final credential = await _firebaseAuth.signInWithCredential(authCredential);
-      return Mapper.toModel(credential.user!);
+      return credential.user?.toModel;
     } on FirebaseAuthException catch (e) {
       throw LogInWithGoogleException.fromCode(e.code);
     } catch (_) {
@@ -84,7 +84,7 @@ class AuthServicesImpl extends AuthService {
   @override
   Stream<UserModel?> get onAuthStateChanged {
     return _firebaseAuth.authStateChanges().map((user) {
-       return user == null ? null : Mapper.toModel(user);
+       return user != null ? user.toModel : null;
     });
   }
 }

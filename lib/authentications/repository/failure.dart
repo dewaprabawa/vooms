@@ -9,7 +9,11 @@ class Failure extends Equatable {
 
 
 class AuthenticationError extends Failure {
-  AuthenticationError({required super.errorMessage});
+ const AuthenticationError({required super.errorMessage});
+}
+
+class UserDataError extends Failure {
+ const UserDataError({required super.errorMessage});
 }
 
 class SignUpWithEmailAndPasswordException implements Exception {
@@ -87,7 +91,7 @@ class SignInWithEmailAndPasswordException implements Exception {
 
 class SignOutException implements Exception {}
 
-class AuthStoreException implements Exception {}
+class UserStoreException implements Exception {}
 
 class LogInWithGoogleException implements Exception {
   /// {@macro log_in_with_google_failure}

@@ -1,7 +1,7 @@
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:vooms/authentications/repository/db_service.dart';
 
-class UserDataLocalImpl implements DBservice<List<Map<String,dynamic>>> {
+class UserDataLocalImpl implements DBservice {
 
   final Box _box;
 
@@ -13,7 +13,7 @@ class UserDataLocalImpl implements DBservice<List<Map<String,dynamic>>> {
   }
 
   @override
-  Future<List<Map<String,dynamic>>> retrieve(String key) async {
+  Future<List<Map<String,dynamic>>> retrieveList(String key) async {
      return [_box.values.first];
   }
 
@@ -25,6 +25,12 @@ class UserDataLocalImpl implements DBservice<List<Map<String,dynamic>>> {
   @override
   Future<void> update(Map<String, dynamic> map) async {
       await _box.put(map["id"], map);
+  }
+  
+  @override
+  Future<Map<String, dynamic>> retrieve() {
+    // TODO: implement retrieve
+    throw UnimplementedError();
   }
 
 }
