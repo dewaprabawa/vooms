@@ -1,9 +1,11 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:formz/formz.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:vooms/authentications/auth_helpers/wording_auth_constants.dart';
 import 'package:vooms/authentications/pages/blocs/signup_cubit/sign_up_cubit.dart';
+import 'package:vooms/bottom_nav_bar/main_bottom_nav.dart';
 import 'package:vooms/shareds/components/m_filled_button.dart';
 import 'package:vooms/shareds/components/m_outline_button.dart';
 import 'package:vooms/shareds/components/m_text_field.dart';
@@ -29,6 +31,7 @@ class _SignUpPageState extends State<SignUpPage> {
   void dispose() {
     _fullNameController.dispose();
     _emailController.dispose();
+    _phoneController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
@@ -42,15 +45,15 @@ class _SignUpPageState extends State<SignUpPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocConsumer<SignUpCubit, SignUpState>(listener: (context, state) {
-        if (state.status == FormzStatus.submissionFailure) {
-          const snackBar = SnackBar(
-            content: Text('Yay! A SnackBar!'),
-          );
-
-// Find the ScaffoldMessenger in the widget tree
-// and use it to show a SnackBar.
-          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      appBar: AppBar(
+        backgroundColor: Color(0xffFAFAFA),
+        elevation: 0,
+      ),
+      body: BlocConsumer<SignUpCubit, SignUpState>(
+        listener: (context, state) {
+        if (state.status.isSubmissionFailure) {
+          var snackbar = SnackBar(content: Text(state.errorMessage ?? ""));
+          ScaffoldMessenger.of(context).showSnackBar(snackbar);
         }
       }, builder: (context, state) {
         return SafeArea(
@@ -188,14 +191,18 @@ class _SignUpPageState extends State<SignUpPage> {
                 height: 20,
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  if(Navigator.canPop(context)){
+                    Navigator.pop(context);
+                  }
+                },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text("Sudah mempunyai akun?",
                         style: GoogleFonts.dmMono(
                             color: Colors.black, fontSize: 13)),
-                    SizedBox(
+                    const SizedBox(
                       width: 10,
                     ),
                     Text(

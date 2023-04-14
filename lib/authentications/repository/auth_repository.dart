@@ -1,9 +1,11 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
-import 'package:vooms/authentications/repository/auth_services.dart';
+import 'package:vooms/authentications/repository/auth_service.dart';
+import 'package:vooms/authentications/repository/auth_service_impl.dart';
 import 'package:vooms/authentications/repository/db_service.dart';
 import 'package:vooms/authentications/repository/failure.dart';
 import 'package:vooms/authentications/repository/user_entity.dart';
+import 'package:vooms/authentications/repository/user_model.dart';
 
 // An abstract class that defines authentication-related operations.
 abstract class AuthRepository {
@@ -48,23 +50,7 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final model = await _authService.signUpUser(email,
           password); // Call the signUpUser function of AuthService to register the user.
-      if (model != null) {
-        // Save the user details to the database if the user registration was successful.
-        Future.wait([
-          _authStoreRemote.save(UserEntity(fullname, phone,
-                  uid: model.uid,
-                  email: model.email,
-                  photoUrl: model.photoUrl,
-                  displayName: model.uid)
-              .toMap()),
-          _authStoreLocal.save(UserEntity(fullname, phone,
-                  uid: model.uid,
-                  email: model.email,
-                  photoUrl: model.photoUrl,
-                  displayName: model.uid)
-              .toMap()),
-        ]);
-      }
+      _saveCredentialUser(model, fullname, phone);
       debugPrint("==signUpUser==");
       return right(unit); // Return a success message.
     } on SignUpWithEmailAndPasswordException catch (e) {
@@ -109,22 +95,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, Unit>> googleSignIn() async {
     try {
       final model = await _authService.signInWithGoogle();
-      if (model != null) {
-        Future.wait([
-           _authStoreRemote.save(UserEntity(model.displayName, "",
-                uid: model.uid,
-                email: model.email,
-                photoUrl: model.photoUrl,
-                displayName: model.uid)
-            .toMap()),
-         _authStoreLocal.save(UserEntity(model.displayName, "",
-                uid: model.uid,
-                email: model.email,
-                photoUrl: model.photoUrl,
-                displayName: model.uid)
-            .toMap()), 
-        ]);   
-      }
+      _saveCredentialUser(model, null, null);
       debugPrint("==googleSignIn==");
       return right(unit);
     } on LogInWithGoogleException catch (e) {
@@ -139,5 +110,27 @@ class AuthRepositoryImpl implements AuthRepository {
     return _authService.onAuthStateChanged.map((event) {
       return event != null;
     });
+  }
+
+  void _saveCredentialUser(UserModel? model, String? fullname, String? phone) {
+    if (model != null) {
+      // Save the user details to the database if the user registration was successful.
+      Future.wait([
+        _authStoreRemote.save(UserEntity(
+                fullname ?? model.displayName, phone ?? "",
+                uid: model.uid,
+                email: model.email,
+                photoUrl: model.photoUrl,
+                displayName: model.uid)
+            .toMap()),
+        _authStoreLocal.save(UserEntity(
+                fullname ?? model.displayName, phone ?? "",
+                uid: model.uid,
+                email: model.email,
+                photoUrl: model.photoUrl,
+                displayName: model.uid)
+            .toMap()),
+      ]);
+    }
   }
 }

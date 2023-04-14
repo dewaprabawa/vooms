@@ -6,13 +6,13 @@ import 'package:vooms/authentications/repository/failure.dart';
 
 const String collectionAuthKey = "user_store";
 
-class UserServiceRemoteImpl implements DBservice<List<Map<String, dynamic>>> {
+class UserDataRemoteImpl implements DBservice<List<Map<String, dynamic>>> {
 
   late CollectionReference collectionReference;
 
   final FirebaseFirestore _firebaseFirestore;
 
-  UserServiceRemoteImpl(this._firebaseFirestore){
+  UserDataRemoteImpl(this._firebaseFirestore){
     collectionReference = _firebaseFirestore.collection(collectionAuthKey);
   }
 
@@ -27,7 +27,9 @@ class UserServiceRemoteImpl implements DBservice<List<Map<String, dynamic>>> {
 
   @override
   Future<List<Map<String, dynamic>>> retrieve(String key) async {
-    return [];
+    final data = await collectionReference.doc(key).get();
+    var currentUser = data.data() as Map<String,dynamic>;
+    return [currentUser];
   }
 
   @override
