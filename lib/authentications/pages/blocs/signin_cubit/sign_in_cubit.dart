@@ -24,6 +24,10 @@ class SignInCubit extends Cubit<SignInState> {
     ));
   }
 
+   void onSecureOnChanged() {
+    emit(state.copyWith(isSecurity: !state.isSecurity));
+  }
+
   void passwordChanged(String value) {
     final password = Password.dirty(value);
     emit(state.copyWith(
@@ -35,9 +39,10 @@ class SignInCubit extends Cubit<SignInState> {
     ));
   }
 
-    Future<void> signInUser(String email, String password) async {
+    Future<void> signInUser() async {
+     if(state.status.isInvalid) return; 
      emit(state.copyWith(currentStatus: FormzStatus.submissionInProgress));
-      final data = await _authRepository.signInUser(email: email, password: password);
+      final data = await _authRepository.signInUser(email: state.email.value, password: state.password.value);
       data.fold((error) {
         emit(state.copyWith(
             errorMessage: error.errorMessage, currentStatus: FormzStatus.submissionFailure));
