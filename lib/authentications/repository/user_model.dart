@@ -15,6 +15,7 @@ class UserModel {
   final String displayName;
 }
 
+/*
 class Mapper {
   static UserModel toModel(User user) {
     return UserModel(
@@ -33,4 +34,24 @@ class Mapper {
         photoUrl: map["photoUrl"] ?? "",
         displayName: map["displayName"] ?? "");
   }
+}*/
+
+extension Mapper on User {
+    UserModel get toModel {
+      return UserModel(
+        uid: uid,
+        email: email ?? "",
+        photoUrl: photoURL ?? "",
+        displayName: displayName ?? "");
+    }
+
+    UserEntity toEntityFromMap(Map<dynamic, String> map) {
+      return UserEntity(
+        map["fullname"] ?? "", 
+        map["phone"] ?? "",
+        uid: map["id"] ?? "",
+        email: map["email"] ?? "",
+        photoUrl: map["photoUrl"] ?? "",
+        displayName: map["displayName"] ?? "");
+    }
 }

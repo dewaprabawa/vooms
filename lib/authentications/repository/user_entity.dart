@@ -20,4 +20,15 @@ class UserEntity extends UserModel {
       "displayName": displayName
     };
   }
+
+  factory UserEntity.fromMap(Map<String,dynamic> map) {
+    return UserEntity(
+       map["fullname"],
+       map["phone"],
+        uid: map["id"],
+        email: map["email"],
+        photoUrl: map["photoUrl"],
+        displayName: map["displayName"],
+    );
+  }
 }

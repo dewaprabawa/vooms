@@ -14,6 +14,8 @@ import 'package:vooms/authentications/repository/auth_repository.dart';
 import 'package:vooms/authentications/repository/auth_service_impl.dart';
 import 'package:vooms/authentications/repository/user_data_local_impl.dart';
 import 'package:vooms/authentications/repository/user_data_remote_impl.dart';
+import 'package:vooms/authentications/repository/user_repository.dart';
+import 'package:vooms/authentications/repository/user_repository_impl.dart';
 import 'package:vooms/bottom_nav_bar/main_bottom_nav.dart';
 import 'package:vooms/shareds/general_helper/ui_color_constants.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -25,13 +27,23 @@ class App extends StatelessWidget {
       AuthServicesImpl(FirebaseAuth.instance, GoogleSignIn()),
       UserDataRemoteImpl(FirebaseFirestore.instance),
       UserDataLocalImpl(Hive.box("user_data")));
+  final _userRepository = UserRepositoryImpl(
+      UserDataRemoteImpl(FirebaseFirestore.instance),
+      UserDataLocalImpl(Hive.box("user_data")));
 
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   @override
   Widget build(BuildContext context) {
-    return RepositoryProvider<AuthRepository>(
-      create: (context) => _authRepository,
+    return MultiRepositoryProvider(
+      providers: [
+        RepositoryProvider<AuthRepository>(
+          create: (context) => _authRepository,
+        ),
+        RepositoryProvider<UserRepository>(
+          create: (context) => _userRepository,
+        ),
+      ],
       child: MultiBlocProvider(
         providers: [
           BlocProvider(create: (context) => SignUpCubit(_authRepository)),
@@ -78,7 +90,6 @@ class _OnStartUpPageState extends State<OnStartUpPage> {
     }
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
