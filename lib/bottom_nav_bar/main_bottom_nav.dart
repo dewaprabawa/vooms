@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vooms/activity/pages/activity_page.dart';
-import 'package:vooms/authentications/repository/user_repository.dart';
+import 'package:vooms/authentication/repository/user_repository.dart';
 import 'package:vooms/profile/pages/cubit/profile_cubit.dart';
 import 'package:vooms/profile/pages/profile_page.dart';
 

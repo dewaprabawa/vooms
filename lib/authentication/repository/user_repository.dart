@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
-import 'package:vooms/authentications/repository/failure.dart';
-import 'package:vooms/authentications/repository/user_entity.dart';
+import 'package:vooms/authentication/repository/failure.dart';
+import 'package:vooms/authentication/repository/user_entity.dart';
 
 
 abstract class UserRepository {

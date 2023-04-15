@@ -1,4 +1,4 @@
-import 'package:vooms/authentications/repository/user_model.dart';
+import 'package:vooms/authentication/repository/user_model.dart';
 
 class UserEntity extends UserModel {
   UserEntity(this.fullname, this.phone,

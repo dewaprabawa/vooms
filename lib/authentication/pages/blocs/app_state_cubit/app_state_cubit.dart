@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
-import 'package:vooms/authentications/repository/auth_repository.dart';
+import 'package:vooms/authentication/repository/auth_repository.dart';
 
 part 'app_state_state.dart';
 
@@ -9,7 +9,7 @@ class AppStateCubit extends Cubit<AppStateState> {
   AppStateCubit(this._authRepository) : super(const AppStateState.initial());
   final AuthRepository _authRepository;
 
-  void startListentAppStateChanges(bool isAuthenticated){
+  void startListentStateChanges(bool isAuthenticated){
         if(isAuthenticated){
             emit(const AppStateState.authenticated());
         }else{

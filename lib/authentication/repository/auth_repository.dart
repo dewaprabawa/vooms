@@ -33,7 +33,8 @@ abstract class AuthRepository {
   // A stream that listens for changes in the current user's authentication state.
   Stream<bool> listenToUserChanges();
 
-  Future<void> saveUserCredentials(String email, String password, bool rememberMe);
+  Future<void> saveUserCredentials(
+      String email, String password, bool rememberMe);
 
   Future<Map<String, dynamic>> getUserCredentials();
 }
@@ -54,15 +55,6 @@ class AuthRepositoryImpl with CheckMethod implements AuthRepository {
       required String password,
       required String phone}) async {
     try {
-      // Check if the user's email address is already stored in Firestore
-      bool isEmailEverRegistered = await _checkDataExists(
-          fieldKey: "email", valueToCheck: email, collectionKey: "user_data");
-
-      if (isEmailEverRegistered) {
-        return left(
-            const AuthenticationError(errorMessage: "This Email Already used"));
-      }
-
       final model = await _authService.signUpUser(email,
           password); // Call the signUpUser function of AuthService to register the user.
       _saveCredentialUser(model, fullname, phone);
@@ -109,19 +101,20 @@ class AuthRepositoryImpl with CheckMethod implements AuthRepository {
   @override
   Future<Either<Failure, Unit>> googleSignIn() async {
     try {
-
       final model = await _authService.signInWithGoogle();
 
       // Check if the user's email address is already stored in Firestore
-       bool isEmailEverRegistered = await _checkDataExists(
-          fieldKey: "email", valueToCheck: model!.email, collectionKey: "user_data");
+      bool isEmailEverRegistered = await _checkDataExists(
+          fieldKey: "email",
+          valueToCheck: model!.email,
+          collectionKey: "user_data");
 
       if (isEmailEverRegistered) {
         return left(
             const AuthenticationError(errorMessage: "This Email Already used"));
       }
 
-       // Save the user's credentials to Firestore
+      // Save the user's credentials to Firestore
       _saveCredentialUser(model, null, null);
       debugPrint("==googleSignIn==");
       return right(unit);
@@ -140,7 +133,8 @@ class AuthRepositoryImpl with CheckMethod implements AuthRepository {
   }
 
   @override
-  Future<void> saveUserCredentials(String email, String password, bool rememberMe) async {
+  Future<void> saveUserCredentials(
+      String email, String password, bool rememberMe) async {
     final prefs = await SharedPreferences.getInstance();
 
     // Store the user's email and password in shared preferences
@@ -152,14 +146,14 @@ class AuthRepositoryImpl with CheckMethod implements AuthRepository {
   }
 
   Future<Map<String, dynamic>> getUserCredentials() async {
-  final prefs = await SharedPreferences.getInstance();
+    final prefs = await SharedPreferences.getInstance();
 
-  final email = prefs.getString('email');
-  final password = prefs.getString('password');
-  final rememberMe = prefs.getBool('rememberMe') ?? false;
+    final email = prefs.getString('email');
+    final password = prefs.getString('password');
+    final rememberMe = prefs.getBool('rememberMe') ?? false;
 
-  return {'email': email, 'password': password, 'rememberMe': rememberMe};
-}
+    return {'email': email, 'password': password, 'rememberMe': rememberMe};
+  }
 
   void _saveCredentialUser(UserModel? model, String? fullname, String? phone) {
     if (model != null) {
