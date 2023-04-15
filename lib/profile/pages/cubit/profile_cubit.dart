@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:vooms/authentications/repository/user_entity.dart';
-import 'package:vooms/authentications/repository/user_repository.dart';
+import 'package:vooms/authentication/repository/user_entity.dart';
+import 'package:vooms/authentication/repository/user_repository.dart';
 
 part 'profile_state.dart';
 
