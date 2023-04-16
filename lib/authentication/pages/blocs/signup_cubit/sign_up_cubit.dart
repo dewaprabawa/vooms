@@ -12,9 +12,20 @@ import 'package:vooms/authentication/repository/failure.dart';
 part 'sign_up_state.dart';
 
 class SignUpCubit extends Cubit<SignUpState> {
-  SignUpCubit(this.authRepository) : super(const SignUpState());
+  SignUpCubit(this._authRepository) : super(const SignUpState());
 
-  final AuthRepository authRepository;
+  final AuthRepository _authRepository;
+
+  bool get isStillPure => (state.email.pure &&
+      state.password.pure &&
+      state.fullName.pure &&
+      state.phoneNumber.pure);
+
+  bool get isAnyOfFieldInValid =>
+      state.fullName.invalid ||
+      state.email.invalid ||
+      state.password.invalid ||
+      state.phoneNumber.invalid;
 
   void onSecureOnChanged() {
     emit(state.copyWith(isSecurity: !state.isSecurity));
@@ -97,31 +108,37 @@ class SignUpCubit extends Cubit<SignUpState> {
   }
 
   Future<void> loginWithGoogle() async {
-     emit(state.copyWith(status: FormzStatus.submissionInProgress));
-      final data = await authRepository.googleSignIn();
-      data.fold((error) {
-        String errorMessage = (error as AuthenticationError).errorMessage;
-        emit(state.copyWith(
-            errorMessage: errorMessage, status: FormzStatus.submissionFailure));
-      }, (_) {
-        emit(state.copyWith(status: FormzStatus.submissionSuccess));
-      });
+    emit(state.copyWith(status: FormzStatus.submissionInProgress));
+    final data = await _authRepository.googleSignIn();
+    data.fold((error) {
+      emit(state.copyWith(
+          errorMessage: error.errorMessage,
+          status: FormzStatus.submissionFailure));
+    }, (_) {
+      emit(state.copyWith(status: FormzStatus.submissionSuccess));
+    });
   }
 
   Future<void> signUp() async {
     if (state.status.isInvalid) return;
     emit(state.copyWith(status: FormzStatus.submissionInProgress));
-      final data = await authRepository.signUpUser(
-          fullname: state.fullName.value,
-          phone: state.phoneNumber.value,
-          email: state.email.value,
-          password: state.password.value);
-      data.fold((error) {
-        String errorMessage = (error as AuthenticationError).errorMessage;
-        emit(state.copyWith(
-            errorMessage: errorMessage, status: FormzStatus.submissionFailure));
-      }, (_) {
-        emit(state.copyWith(status: FormzStatus.submissionSuccess));
-      });
+    final data = await _authRepository.signUpUser(
+        fullname: state.fullName.value,
+        phone: state.phoneNumber.value,
+        email: state.email.value,
+        password: state.password.value);
+    data.fold((error) {
+      emit(state.copyWith(
+          errorMessage: error.errorMessage,
+          status: FormzStatus.submissionFailure));
+    }, (_) {
+      emit(state.copyWith(
+          status: FormzStatus.submissionSuccess,
+          fullName: FullName.pure(),
+          email: Email.pure(),
+          password: Password.pure(),
+          confirmPassword: ConfirmPassword.pure(),
+          phoneNumber: PhoneNumber.pure()));
+    });
   }
 }

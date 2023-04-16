@@ -60,6 +60,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     emit(state.copyWith(
       userStateStatus: UserStateStatus.imageUploaded,
     ));
+    
     // Update the state with the loaded user profile information, including the new user image
     getUserResult.map((entity) => emit(
           state.copyWith(

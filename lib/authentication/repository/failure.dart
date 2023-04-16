@@ -143,3 +143,54 @@ class LogInWithGoogleException implements Exception {
   /// The associated error message.
   final String message;
 }
+
+class ResetPasswordException implements Exception {
+  /// {@macro log_in_with_google_failure}
+  const ResetPasswordException([
+    this.message = 'An unknown exception occurred.',
+  ]);
+
+  /// Create an authentication message
+  /// from a firebase authentication exception code.
+  factory ResetPasswordException.fromCode(String code) {
+    switch (code) {
+      case 'auth/invalid-email':
+        return const ResetPasswordException(
+          'Email is not valid or badly formatted.',
+        );
+      case 'invalid-credential':
+        return const ResetPasswordException(
+          'The credential received is malformed or has expired.',
+        );
+      case 'operation-not-allowed':
+        return const ResetPasswordException(
+          'Operation is not allowed.  Please contact support.',
+        );
+      case 'user-disabled':
+        return const ResetPasswordException(
+          'This user has been disabled. Please contact support for help.',
+        );
+      case 'user-not-found':
+        return const ResetPasswordException(
+          'Email is not found, please create an account.',
+        );
+      case 'wrong-password':
+        return const ResetPasswordException(
+          'Incorrect password, please try again.',
+        );
+      case 'invalid-verification-code':
+        return const ResetPasswordException(
+          'The credential verification code received is invalid.',
+        );
+      case 'invalid-verification-id':
+        return const ResetPasswordException(
+          'The credential verification ID received is invalid.',
+        );
+      default:
+        return const ResetPasswordException();
+    }
+  }
+
+  /// The associated error message.
+  final String message;
+}
