@@ -1,5 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:vooms/authentications/repository/user_entity.dart';
+import 'package:vooms/authentication/repository/user_entity.dart';
 
 class UserModel {
   const UserModel({

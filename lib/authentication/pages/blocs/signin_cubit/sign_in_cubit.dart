@@ -12,6 +12,15 @@ class SignInCubit extends Cubit<SignInState> {
 
   final AuthRepository _authRepository;
 
+  bool get isStillPure =>
+      (state.email.pure && state.password.pure) ||
+      !state.email.valid ||
+      !state.password.valid;
+
+  void isRememberMe(bool isRemember) {
+    emit(state.copyWith(isRememberMe: isRemember));
+  }
+
   void emailChanged(String value) {
     final email = Email.dirty(value);
     emit(state.copyWith(
@@ -38,7 +47,7 @@ class SignInCubit extends Cubit<SignInState> {
     ));
   }
 
-  Future<void> signInUser({bool rememberMe = false}) async {
+  Future<void> signInUser() async {
     if (state.status.isInvalid) return;
     emit(state.copyWith(currentStatus: FormzStatus.submissionInProgress));
     final data = await _authRepository.signInUser(
@@ -49,11 +58,13 @@ class SignInCubit extends Cubit<SignInState> {
           currentStatus: FormzStatus.submissionFailure));
     }, (_) {
       // If the "Remember Me" option is selected, save the user's credentials to local storage
-      if (rememberMe) {
-        _authRepository.saveUserCredentials(state.email.value,state.password.value, rememberMe);
-      }
+      _authRepository.saveUserCredentials(
+            state.email.value, state.password.value, state.isRememberMe);
 
-      emit(state.copyWith(currentStatus: FormzStatus.submissionSuccess));
+      emit(state.copyWith(
+          currentStatus: FormzStatus.submissionSuccess,
+          email: const Email.pure(),
+          password: const Password.pure()));
     });
   }
 }

@@ -12,7 +12,9 @@ class MfilledButton extends StatelessWidget {
       this.height = 0,
       this.width = double.infinity,
       this.textColor,
-      this.textSize = 13})
+      this.textSize = 13,
+      this.trailingChild = const SizedBox.shrink()
+      })
       : super(key: key);
   final void Function()? onPressed;
   final String text;
@@ -22,6 +24,7 @@ class MfilledButton extends StatelessWidget {
   final double height;
   final Color? textColor;
   final double textSize;
+  final Widget trailingChild;
 
   @override
   Widget build(BuildContext context) {
@@ -34,12 +37,18 @@ class MfilledButton extends StatelessWidget {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12))),
           onPressed: onPressed,
-          child: Text(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center
+            ,children: [
+            Text(
             text,
             style: GoogleFonts.dmMono(
                 color: textColor ?? UIColorConstant.nativeWhite,
                 fontSize: textSize),
-          )),
+          ),
+          const SizedBox(width: 10,),
+          trailingChild,
+          ],)),
     );
   }
 }

@@ -2,9 +2,9 @@ import 'dart:developer';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:vooms/authentications/repository/auth_service.dart';
-import 'package:vooms/authentications/repository/failure.dart';
-import 'package:vooms/authentications/repository/user_model.dart';
+import 'package:vooms/authentication/repository/auth_service.dart';
+import 'package:vooms/authentication/repository/failure.dart';
+import 'package:vooms/authentication/repository/user_model.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 
@@ -87,4 +87,8 @@ class AuthServicesImpl extends AuthService {
        return user != null ? user.toModel : null;
     });
   }
+  
+  @override
+  // TODO: implement currentUser
+  Future<UserModel?> get currentUser async => _firebaseAuth.currentUser?.toModel;
 }

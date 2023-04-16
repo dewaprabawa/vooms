@@ -1,28 +1,33 @@
 part of 'profile_cubit.dart';
 
-enum ProfileStatus {initial, loaded, failure, loading}
+enum UserStateStatus {initial, loaded, failure, loading, imageUploaded}
+
 
  class ProfileState extends Equatable {
 
   const ProfileState({
-    this.profileStatus = ProfileStatus.initial, 
+    this.userStateStatus = UserStateStatus.initial, 
      this.mesaage = "", 
      this.entity});
 
-  final ProfileStatus profileStatus;
+  final UserStateStatus userStateStatus;
   final String mesaage;
   final UserEntity? entity;
 
-  ProfileState copyWith({ProfileStatus? profileStatus, String? errorMessage, UserEntity? entity}){
+  ProfileState copyWith({
+    UserStateStatus? userStateStatus,
+     String? errorMessage, 
+     UserEntity? entity,
+     }){
     return ProfileState(
-      profileStatus: profileStatus ?? this.profileStatus,
+      userStateStatus: userStateStatus ?? this.userStateStatus,
       mesaage: errorMessage ?? this.mesaage,
       entity: entity ?? this.entity
     );
   }
 
   @override
-  List<Object?> get props => [profileStatus, mesaage, entity];
+  List<Object?> get props => [userStateStatus, mesaage, entity];
 }
 
 

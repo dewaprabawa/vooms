@@ -7,8 +7,10 @@ class SignInState extends Equatable {
     this.isSecurity = false,
     this.status = FormzStatus.pure,
     this.errorMessage = "",
+    this.isRememberMe = false,
   });
-  
+
+  final bool isRememberMe;
   final Email email;
   final Password password;
   final bool isSecurity;
@@ -16,6 +18,7 @@ class SignInState extends Equatable {
   final String errorMessage;
 
   SignInState copyWith({
+    bool? isRememberMe,
     Email? email,
     Password? password,
     bool? isSecurity,
@@ -23,6 +26,7 @@ class SignInState extends Equatable {
     String? errorMessage,
   }) {
     return SignInState(
+      isRememberMe: isRememberMe ?? this.isRememberMe,
       errorMessage: errorMessage ?? this.errorMessage,
       isSecurity: isSecurity ?? this.isSecurity,
       email: email ?? this.email,
@@ -32,7 +36,6 @@ class SignInState extends Equatable {
   }
 
   @override
-  List<Object> get props => [email,password, status, isSecurity, errorMessage];
+  List<Object> get props =>
+      [email, password, status, isSecurity, isRememberMe, errorMessage];
 }
-
-

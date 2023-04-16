@@ -1,13 +1,13 @@
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:vooms/authentications/repository/auth_service.dart';
+import 'package:vooms/authentication/repository/auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:vooms/authentications/repository/db_service.dart';
-import 'package:vooms/authentications/repository/failure.dart';
-import 'package:vooms/authentications/repository/user_data_remote_impl.dart';
-import 'package:vooms/authentications/repository/user_entity.dart';
-import 'package:vooms/authentications/repository/user_model.dart';
+import 'package:vooms/authentication/repository/db_service.dart';
+import 'package:vooms/authentication/repository/failure.dart';
+import 'package:vooms/authentication/repository/user_data_remote_impl.dart';
+import 'package:vooms/authentication/repository/user_entity.dart';
+import 'package:vooms/authentication/repository/user_model.dart';
 
 // An abstract class that defines authentication-related operations.
 abstract class AuthRepository {
@@ -135,6 +135,7 @@ class AuthRepositoryImpl with CheckMethod implements AuthRepository {
   @override
   Future<void> saveUserCredentials(
       String email, String password, bool rememberMe) async {
+        print("==saveUserCredentials $rememberMe");
     final prefs = await SharedPreferences.getInstance();
 
     // Store the user's email and password in shared preferences

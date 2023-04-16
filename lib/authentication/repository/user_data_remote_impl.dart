@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:vooms/authentications/repository/db_service.dart';
-import 'package:vooms/authentications/repository/failure.dart';
+import 'package:vooms/authentication/repository/db_service.dart';
+import 'package:vooms/authentication/repository/failure.dart';
 
 const String collectionAuthKey = "user_store";
 
@@ -47,12 +47,13 @@ class UserDataRemoteImpl implements DBservice {
       throw UserStoreException();
     }
   }
+   
 
   @override
-  Future<Map<String, dynamic>> retrieve() async {
+  Future<Map<String, dynamic>> retrieve(String id) async {
     try {
-      final querySnapshot = await _collectionReference.get();
-      final data = querySnapshot.docs.first.data() as Map<String, dynamic>;
+      final querySnapshot = await _collectionReference.doc(id).get();
+      final data = querySnapshot.data() as Map<String, dynamic>;
       return data;
     } catch (_) {
       throw UserStoreException();
