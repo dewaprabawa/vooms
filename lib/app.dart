@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -10,6 +11,7 @@ import 'package:vooms/authentication/pages/blocs/signup_cubit/sign_up_cubit.dart
 import 'package:vooms/authentication/pages/sign_in_page/sign_in_page.dart';
 import 'package:vooms/authentication/repository/auth_repository.dart';
 import 'package:vooms/authentication/repository/auth_service_impl.dart';
+import 'package:vooms/authentication/repository/image_service_impl.dart';
 import 'package:vooms/authentication/repository/user_data_local_impl.dart';
 import 'package:vooms/authentication/repository/user_data_remote_impl.dart';
 import 'package:vooms/authentication/repository/user_repository.dart';
@@ -25,10 +27,12 @@ class App extends StatelessWidget {
       AuthServicesImpl(FirebaseAuth.instance, GoogleSignIn()),
       UserDataRemoteImpl(FirebaseFirestore.instance),
       UserDataLocalImpl(Hive.box("user_data")));
+
   final _userRepository = UserRepositoryImpl(
       UserDataRemoteImpl(FirebaseFirestore.instance),
-      UserDataLocalImpl(Hive.box("user_data")));
-      
+      UserDataLocalImpl(Hive.box("user_data")),
+      ImageServiceImpl(FirebaseStorage.instance),
+      AuthServicesImpl(FirebaseAuth.instance, GoogleSignIn()));
 
   @override
   Widget build(BuildContext context) {

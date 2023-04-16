@@ -1,5 +1,5 @@
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:vooms/authentications/repository/db_service.dart';
+import 'package:vooms/authentication/repository/db_service.dart';
 
 class UserDataLocalImpl implements DBservice {
 
@@ -28,7 +28,7 @@ class UserDataLocalImpl implements DBservice {
   }
   
   @override
-  Future<Map<String, dynamic>> retrieve() {
+  Future<Map<String, dynamic>> retrieve(String id) {
     // TODO: implement retrieve
     throw UnimplementedError();
   }

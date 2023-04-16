@@ -4,7 +4,7 @@ abstract class DBservice {
   Future<void> update(Map<String,dynamic> map);
   Future<void> delete(String id);
   Future<List<Map<String,dynamic>>> retrieveList(String key);
-  Future<Map<String,dynamic>> retrieve();
+  Future<Map<String,dynamic>> retrieve(String id);
 }
 
 
