@@ -59,12 +59,24 @@ class SignInCubit extends Cubit<SignInState> {
     }, (_) {
       // If the "Remember Me" option is selected, save the user's credentials to local storage
       _authRepository.saveUserCredentials(
-            state.email.value, state.password.value, state.isRememberMe);
+          state.email.value, state.password.value, state.isRememberMe);
 
       emit(state.copyWith(
           currentStatus: FormzStatus.submissionSuccess,
           email: const Email.pure(),
           password: const Password.pure()));
     });
+  }
+
+  Future<void> resetPassword(String email) async {
+    emit(state.copyWith(currentStatus: FormzStatus.submissionInProgress));
+    final either = await _authRepository.startResetPassword(email);
+    either.fold(
+        (e) =>
+            emit(state.copyWith(
+              errorMessage: e.errorMessage,
+              currentStatus: FormzStatus.submissionFailure)),
+        (_) =>
+            emit(state.copyWith(currentStatus: FormzStatus.submissionSuccess)));
   }
 }

@@ -7,9 +7,9 @@ import 'package:vooms/authentication/auth_helpers/wording_auth_constants.dart';
 import 'package:vooms/authentication/pages/blocs/signin_cubit/sign_in_cubit.dart';
 import 'package:vooms/authentication/pages/blocs/signup_cubit/sign_up_cubit.dart';
 import 'package:vooms/authentication/pages/components/on_will_bloc_pop.dart';
-import 'package:vooms/authentication/pages/sign_up_page/sign_up_page.dart';
+import 'package:vooms/authentication/pages/reset_password_page.dart';
+import 'package:vooms/authentication/pages/sign_up_page.dart';
 import 'package:vooms/authentication/repository/auth_repository.dart';
-import 'package:vooms/bottom_nav_bar/main_bottom_nav.dart';
 import 'package:vooms/shareds/components/app_dialog.dart';
 import 'package:vooms/shareds/components/m_filled_button.dart';
 import 'package:vooms/shareds/components/m_outline_button.dart';
@@ -32,21 +32,25 @@ class _SignInPageState extends State<SignInPage> {
   void initState() {
     _emailController = TextEditingController();
     _passwordController = TextEditingController();
+    _startRememberMe();
+    super.initState();
+  }
+
+  void _startRememberMe() {
     Future.microtask(() async {
       final cacheCredential =
           await context.read<AuthRepository>().getUserCredentials();
-          print("==iSREMEBER ${cacheCredential["rememberMe"]}");
+      debugPrint("==iSREMEBER ${cacheCredential["rememberMe"]}");
       if (cacheCredential.isNotEmpty && cacheCredential["rememberMe"]) {
-          _emailController.text = cacheCredential["email"];
-          _passwordController.text = cacheCredential["password"];
-          context.read<SignInCubit>().emailChanged(_emailController.text);
-          context.read<SignInCubit>().passwordChanged(_passwordController.text);
-          context.read<SignInCubit>().isRememberMe(true);
-      }else{
-         context.read<SignInCubit>().isRememberMe(false);
+        _emailController.text = cacheCredential["email"];
+        _passwordController.text = cacheCredential["password"];
+        context.read<SignInCubit>().emailChanged(_emailController.text);
+        context.read<SignInCubit>().passwordChanged(_passwordController.text);
+        context.read<SignInCubit>().isRememberMe(true);
+      } else {
+        context.read<SignInCubit>().isRememberMe(false);
       }
     });
-    super.initState();
   }
 
   @override
@@ -115,7 +119,7 @@ class _SignInPageState extends State<SignInPage> {
                       },
                       icon: const Icon(
                         Icons.security,
-                        color: Colors.red,
+                        color: UIColorConstant.primaryRed,
                       )),
                   onChanged: (value) =>
                       context.read<SignInCubit>().passwordChanged(value),
@@ -124,17 +128,37 @@ class _SignInPageState extends State<SignInPage> {
                       : null,
                   isLabelRequired: true,
                 ),
-                Row(
-                  children: [
-                   const SizedBox(width: 5,),
-                    Checkbox(value: state.isRememberMe, 
-                    onChanged: (value){
-                    context.read<SignInCubit>().isRememberMe(value!);
-                  }),
-                   Text("Ingat saya?",
+                Padding(
+                  padding: const EdgeInsets.only(left: 10, right: 20),
+                  child: Row(
+                    children: [
+                      Checkbox(
+                          activeColor: UIColorConstant.primaryBlue,
+                          value: state.isRememberMe,
+                          onChanged: (value) {
+                            context.read<SignInCubit>().isRememberMe(value!);
+                          }),
+                      Text("Ingat saya?",
                           style: GoogleFonts.dmMono(
-                              color: Colors.black, fontSize: 13, fontWeight: FontWeight.bold)),
-                  ],
+                              color: Colors.black,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500)),
+                      const Spacer(),
+                      GestureDetector(
+                        onTapUp: (detail){
+                          var route = CupertinoPageRoute(builder: (context) => const ResetPasswordPage());
+                          Navigator.push(context, route);
+                        },
+                        child: Text("Lupa password",
+                            style: GoogleFonts.dmMono(
+                              color: Colors.black,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w300,
+                              decoration: TextDecoration.underline,
+                            )),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 32.0),
                 MfilledButton(
@@ -152,7 +176,7 @@ class _SignInPageState extends State<SignInPage> {
                       : () async {
                           await context.read<SignInCubit>().signInUser();
                         },
-                  text: 'Daftar Sekarang',
+                  text: 'Masuk Sekarang',
                 ),
                 const SizedBox(height: 15.0),
                 Center(
@@ -187,7 +211,7 @@ class _SignInPageState extends State<SignInPage> {
                         width: 10,
                       ),
                       Text(
-                        "Buat!",
+                        "Buat sekarang!",
                         style: GoogleFonts.dmMono(
                             color: UIColorConstant.primaryGreen,
                             fontSize: 13,

@@ -49,8 +49,7 @@ class _SignUpPageState extends State<SignUpPage> {
         backgroundColor: Color(0xffFAFAFA),
         elevation: 0,
       ),
-      body: BlocConsumer<SignUpCubit, SignUpState>(
-        listener: (context, state) {
+      body: BlocConsumer<SignUpCubit, SignUpState>(listener: (context, state) {
         if (state.status.isSubmissionFailure) {
           var snackbar = SnackBar(content: Text(state.errorMessage ?? ""));
           ScaffoldMessenger.of(context).showSnackBar(snackbar);
@@ -128,7 +127,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 borderWidth: 2,
                 onChanged: (value) =>
                     context.read<SignUpCubit>().passwordChanged(value),
-                errorText: state.fullName.pure
+                errorText: state.password.pure
                     ? null
                     : state.password.validator(state.password.value),
                 isLabelRequired: true,
@@ -138,7 +137,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     },
                     icon: const Icon(
                       Icons.security,
-                      color: Colors.red,
+                      color: UIColorConstant.primaryRed,
                     )),
               ),
               const SizedBox(height: 5.0),
@@ -165,18 +164,25 @@ class _SignUpPageState extends State<SignUpPage> {
                     ? UIColorConstant.nativeGrey
                     : UIColorConstant.primaryBlue,
                 margin: const EdgeInsets.symmetric(horizontal: 20),
-                onPressed: () async {
-                  await context.read<SignUpCubit>().signUp();
-                },
+                onPressed: context.read<SignUpCubit>().isStillPure ||
+                        context.read<SignUpCubit>().isAnyOfFieldInValid ||
+                        state.status.isSubmissionInProgress
+                    ? null
+                    : () async {
+                        await context.read<SignUpCubit>().signUp();
+                      },
                 text: 'Daftar Sekarang',
+                trailingChild: state.status.isSubmissionInProgress
+                    ? const CircularProgressIndicator.adaptive()
+                    : const SizedBox(),
               ),
-              const SizedBox(height: 5.0),
+              const SizedBox(height: 10.0),
               Center(
                 child: Text('Atau buat akun dengan',
                     style:
                         GoogleFonts.dmMono(color: Colors.grey, fontSize: 13)),
               ),
-              const SizedBox(height: 5.0),
+              const SizedBox(height: 10.0),
               MoutlineButoon(
                 width: double.infinity,
                 height: 45,
@@ -192,7 +198,7 @@ class _SignUpPageState extends State<SignUpPage> {
               ),
               TextButton(
                 onPressed: () {
-                  if(Navigator.canPop(context)){
+                  if (Navigator.canPop(context)) {
                     Navigator.pop(context);
                   }
                 },

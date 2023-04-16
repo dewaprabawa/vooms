@@ -37,6 +37,8 @@ abstract class AuthRepository {
       String email, String password, bool rememberMe);
 
   Future<Map<String, dynamic>> getUserCredentials();
+
+  Future<Either<Failure,Unit>> startResetPassword(String email);
 }
 
 class AuthRepositoryImpl with CheckMethod implements AuthRepository {
@@ -178,7 +180,7 @@ class AuthRepositoryImpl with CheckMethod implements AuthRepository {
     }
   }
 
-  @override
+
   Future<bool> _checkDataExists(
       {required String fieldKey,
       required String valueToCheck,
@@ -187,5 +189,26 @@ class AuthRepositoryImpl with CheckMethod implements AuthRepository {
         fieldKey: fieldKey,
         valueToCheck: valueToCheck,
         collectionKey: collectionKey);
+  }
+  
+  @override
+  Future<Either<Failure, Unit>> startResetPassword(String email) async {
+     try{
+       // Check if the user's email address is already stored in Firestore
+      bool isEmailEverRegistered = await _checkDataExists(
+          fieldKey: "email",
+          valueToCheck: email,
+          collectionKey: "user_data");
+
+      if (isEmailEverRegistered) {
+        return left(
+            const AuthenticationError(errorMessage: "This email is not registered yet"));
+      }
+ 
+      await _authService.resetPassword(email);
+      return const Right(unit);
+     } on ResetPasswordException catch(e){
+      return Left(AuthenticationError(errorMessage: e.message));
+     }
   }
 }

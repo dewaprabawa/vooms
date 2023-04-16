@@ -31,7 +31,7 @@ class AuthServicesImpl extends AuthService {
 
   @override
   Future<UserModel?> signInUser(String email, String password) async {
-    print("$email $password");
+    debugPrint("$email $password");
     try {
       final credential = await _firebaseAuth.signInWithEmailAndPassword(
           email: email, password: password);
@@ -89,6 +89,14 @@ class AuthServicesImpl extends AuthService {
   }
   
   @override
-  // TODO: implement currentUser
   Future<UserModel?> get currentUser async => _firebaseAuth.currentUser?.toModel;
+  
+  @override
+  Future<void> resetPassword(String email) async {
+     try{
+      await _firebaseAuth.sendPasswordResetEmail(email: email);
+     } on FirebaseAuthException catch(_){
+        throw const ResetPasswordException();
+     }
+  }
 }

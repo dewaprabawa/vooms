@@ -9,6 +9,7 @@ abstract class AuthService {
   Future<UserModel?> signUpUser(String email, String password);
   Future<UserModel?> signInWithGoogle();
   Future<UserModel?> signInWithFacebook();
+  Future<void> resetPassword(String email);
   Future<void> signOut();
   void dispose();
 

@@ -8,7 +8,7 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:vooms/authentication/pages/blocs/app_state_cubit/app_state_cubit.dart';
 import 'package:vooms/authentication/pages/blocs/signin_cubit/sign_in_cubit.dart';
 import 'package:vooms/authentication/pages/blocs/signup_cubit/sign_up_cubit.dart';
-import 'package:vooms/authentication/pages/sign_in_page/sign_in_page.dart';
+import 'package:vooms/authentication/pages/sign_in_page.dart';
 import 'package:vooms/authentication/repository/auth_repository.dart';
 import 'package:vooms/authentication/repository/auth_service_impl.dart';
 import 'package:vooms/authentication/repository/image_service_impl.dart';
