@@ -15,44 +15,76 @@ class ChatRoomPage extends StatefulWidget {
 }
 
 class _ChatRoomPageState extends State<ChatRoomPage> {
-  late final StreamController<List<Message>> _messageController;
   late final StreamSubscription<List<Message>> _streamSubscription;
   late final TextEditingController _senderTextField;
-  String? conversId;
-  List<Message> messages = [];
+  String? _conversationId;
+  List<Message> _messages = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
-     // Initialize the TextEditingController
+    super.initState();
+    
     _senderTextField = TextEditingController();
-    // Initialize the StreamController
-    _messageController = StreamController<List<Message>>(); 
-    // Use Future.microtask to perform an asynchronous operation after the widget is built
-    Future.microtask(() async { 
-      // Get the current user from the AuthService
-      final model = await sl<AuthService>().currentUser; 
-      if (model != null) {
-        // Get the conversation ID from the ChatService
-        conversId = await sl<ChatService>()
-            .getConversationId(model.uid, widget.recipientId); 
-        if (conversId != null) {
-          // Listen to the stream of messages and add each message to the StreamController
-          _streamSubscription = sl<ChatService>()
-              .getMessagesForConversation(conversId!)
-              .listen((event) { 
-            _messageController.add(event);
-          });
+    Future.microtask(() async {
+      try {
+        // Get the current user from the AuthService
+        final currentUser = await sl<AuthService>().currentUser;
+        if (currentUser == null) {
+          throw 'User not found';
         }
+
+        // Get the conversation ID from the ChatService
+        final conversationId = await sl<ChatService>()
+            .getConversationId(currentUser.uid, widget.recipientId);
+
+        if (conversationId == null) {
+          throw 'Conversation not found';
+        }
+
+        _conversationId = conversationId;
+        // Listen to the stream of messages and add each message to the StreamController
+        _streamSubscription = sl<ChatService>()
+            .getMessagesForConversation(conversationId)
+            .listen((messages) {
+          setState(() {
+            _messages = messages;
+            _isLoading = false;
+          });
+        });
+      } catch (error) {
+        setState(() {
+          _isLoading = false;
+        });
+        debugPrint(error.toString());
       }
     });
-    super.initState();
+  }
+
+  void _sendMessage() async {
+    if (_senderTextField.text.isEmpty || _conversationId == null) {
+      return;
+    }
+
+    final currentUser = await sl<AuthService>().currentUser;
+    if (currentUser == null) {
+      return;
+    }
+
+    sl<ChatService>().sendMessage(
+      _conversationId!,
+      currentUser.uid,
+      _senderTextField.text,
+    );
+
+    setState(() {
+      _senderTextField.clear();
+    });
   }
 
   @override
   void dispose() {
     _streamSubscription.cancel();
-    _messageController.close();
-    _senderTextField.clear();
     _senderTextField.dispose();
     super.dispose();
   }
@@ -77,38 +109,20 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                 ),
               ),
             ),
-            IconButton(
-              icon: const Icon(Icons.send),
-              onPressed: () async {
-                final model = await sl<AuthService>().currentUser;
-                if (_senderTextField.text.isNotEmpty &&
-                    conversId != null &&
-                    model != null) {
-                  sl<ChatService>().sendMessage(
-                      conversId!, model.uid, _senderTextField.text);
-                  setState(() {
-                    _senderTextField.clear();
-                  });
-                }
-              },
-            ),
+            IconButton(icon: const Icon(Icons.send), onPressed: _sendMessage),
             const SizedBox(width: 10.0),
           ],
         ),
       ),
-      body: StreamBuilder<List<Message>>(
-        stream: _messageController.stream,
-        initialData: const [],
-        builder: (context, data) {
-          return ListView.builder(
-              itemCount: data.data?.length,
+      body: _isLoading
+          ? const CircularProgressIndicator()
+          : ListView.builder(
+              itemCount: _messages.length,
               itemBuilder: (context, index) {
                 return ListTile(
-                  title: Text(data.data![index].content),
+                  title: Text(_messages[index].content),
                 );
-              });
-        },
-      ),
+              }),
     );
   }
 }

@@ -4,29 +4,43 @@ import 'package:vooms/authentication/repository/auth_service.dart';
 import 'package:vooms/chat/chat_repository/chat_service.dart';
 import 'package:vooms/chat/entities/conversation.dart';
 import 'package:vooms/chat/entities/message.dart';
+import 'package:vooms/shareds/general_helper/firebase_key_constant.dart';
 
 class ChatServiceImpl implements ChatService {
-  final conversationsCollection =
-      FirebaseFirestore.instance.collection('conversations');
+  late final CollectionReference _conversationsCollection;
+  late final CollectionReference _collectionUserReference;
   final AuthService _authService;
 
-  ChatServiceImpl(this._authService);    
+  ChatServiceImpl(this._authService) {
+    _conversationsCollection = FirebaseFirestore.instance
+        .collection(FirebaseKeyConstant.collectionConversationKey);
+    _collectionUserReference = FirebaseFirestore.instance
+        .collection(FirebaseKeyConstant.collectionUserKey);
+        
+  }
 
   @override
   Future<void> createConversation(
       String? name, String type, List<String> memberIds) async {
-    List<Map<String, dynamic>> membersData = memberIds.map((userId) {
-      return {
+    List<Map<String, dynamic>> membersData = [];
+
+    for (int i = 0; i < memberIds.length; i++) {
+      String userId = memberIds[i];
+      String? memberPhotoUrl = await getUserPhotoUrl(
+          userId); // assuming a function to get the member's photo URL is defined somewhere
+      Map<String, dynamic> memberData = {
         'userId': userId,
         'lastSeen': Timestamp.now(),
+        'photoUrl': memberPhotoUrl,
       };
-    }).toList();
+      membersData.add(memberData);
+    }
 
     if (type == "user") {
       // One-to-one conversation
       membersData.sort((a, b) => a['userId'].compareTo(b['userId']));
       String id = membersData[0]['userId'] + "_" + membersData[1]['userId'];
-      DocumentReference docRef = conversationsCollection.doc(id);
+      DocumentReference docRef = _conversationsCollection.doc(id);
 
       Map<String, dynamic> data = {
         'type': type,
@@ -40,7 +54,7 @@ class ChatServiceImpl implements ChatService {
       await docRef.set(data);
     } else {
       // Group conversation
-      await conversationsCollection.add({
+      await _conversationsCollection.add({
         'name': name,
         'type': type,
         'members': membersData,
@@ -53,7 +67,7 @@ class ChatServiceImpl implements ChatService {
       String conversationId, String senderId, String content,
       {String? imageUrl, String? videoUrl}) async {
     CollectionReference messagesCollection =
-        conversationsCollection.doc(conversationId).collection('messages');
+        _conversationsCollection.doc(conversationId).collection('messages');
 
     Map<String, dynamic> messageData = {
       'senderId': senderId,
@@ -86,9 +100,9 @@ class ChatServiceImpl implements ChatService {
     messagesCollection.add(messageData);
   }
 
-   @override
+  @override
   Stream<List<Conversation>> getConversationsForUser(String userId) {
-    return conversationsCollection
+    return _conversationsCollection
         .where('members', arrayContains: {'userId': userId})
         .snapshots()
         .map((querySnapshot) {
@@ -101,10 +115,10 @@ class ChatServiceImpl implements ChatService {
           return conversations;
         });
   }
-  
+
   @override
   Stream<List<Message>> getMessagesForConversation(String conversationId) {
-    return conversationsCollection
+    return _conversationsCollection
         .doc(conversationId)
         .collection('messages')
         .orderBy('timestamp', descending: true)
@@ -120,26 +134,33 @@ class ChatServiceImpl implements ChatService {
       return messages;
     });
   }
-   
- @override
-Future<String> getConversationId(String user1Id, String user2Id) async {
-  String conversationId;
-  QuerySnapshot conversations = await conversationsCollection
-      .where('members.userId', arrayContains: [user1Id, user2Id])
-      .get();
 
-  if (conversations.docs.isNotEmpty) {
-    conversationId = conversations.docs.first.id;
-  } else {
-    List<String> memberIds = [user1Id, user2Id];
-    memberIds.sort();
-    conversationId = memberIds.join('_');
-    await createConversation(null, 'user', memberIds);
+  @override
+  Future<String> getConversationId(String user1Id, String user2Id) async {
+    String conversationId;
+    QuerySnapshot conversations = await _conversationsCollection
+        .where('members.userId', arrayContains: [user1Id, user2Id]).get();
+
+    if (conversations.docs.isNotEmpty) {
+      conversationId = conversations.docs.first.id;
+    } else {
+      List<String> memberIds = [user1Id, user2Id];
+      memberIds.sort();
+      conversationId = memberIds.join('_');
+      await createConversation(null, 'user', memberIds);
+    }
+
+    return conversationId;
   }
 
-  return conversationId;
-}
+  Future<String?> getUserPhotoUrl(String userId) async {
+    DocumentSnapshot<Object?> snapshot =
+        await _collectionUserReference.doc(userId).get();
 
-
-
+    if (snapshot.exists) {
+      return (snapshot.data() as Map<String, dynamic>)["photoUrl"];
+    } else {
+      return null;
+    }
+  }
 }
