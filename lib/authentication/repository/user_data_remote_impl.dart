@@ -1,17 +1,25 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:vooms/authentication/repository/db_service.dart';
 import 'package:vooms/authentication/repository/failure.dart';
+import 'package:vooms/shareds/general_helper/firebase_key_constant.dart';
 
-const String collectionAuthKey = "user_store";
 
-class UserDataRemoteImpl implements DBservice {
+abstract class UserDBRemoteService {
+  Future<void> save(Map<String,dynamic> map);
+  Future<void> update(Map<String,dynamic> map);
+  Future<void> delete(String id);
+  Future<List<Map<String,dynamic>>> retrieveList();
+  Future<Map<String,dynamic>> retrieve(String id);
+}
+
+
+class UserDataRemoteImpl implements UserDBRemoteService {
   late CollectionReference _collectionReference;
 
   final FirebaseFirestore _firebaseFirestore;
 
   UserDataRemoteImpl(this._firebaseFirestore) {
-    _collectionReference = _firebaseFirestore.collection(collectionAuthKey);
+    _collectionReference = _firebaseFirestore.collection(FirebaseKeyConstant.collectionUserKey);
   }
 
   @override
@@ -24,7 +32,7 @@ class UserDataRemoteImpl implements DBservice {
   }
 
   @override
-  Future<List<Map<String, dynamic>>> retrieveList(String key) async {
+  Future<List<Map<String, dynamic>>> retrieveList() async {
     return [];
   }
 

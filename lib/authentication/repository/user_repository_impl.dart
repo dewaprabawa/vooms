@@ -3,16 +3,18 @@ import 'dart:io';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:vooms/authentication/repository/auth_service.dart';
-import 'package:vooms/authentication/repository/db_service.dart';
 import 'package:vooms/authentication/repository/failure.dart';
 import 'package:vooms/authentication/repository/image_service_impl.dart';
+import 'package:vooms/authentication/repository/user_data_local_impl.dart';
+import 'package:vooms/authentication/repository/user_data_remote_impl.dart';
 import 'package:vooms/authentication/repository/user_entity.dart';
 import 'package:vooms/authentication/repository/user_model.dart';
 import 'package:vooms/authentication/repository/user_repository.dart';
 
 class UserRepositoryImpl implements UserRepository {
-  final DBservice _userDataRemote;
-  final DBservice _userDataLocal;
+  final UserDBRemoteService _userDataRemote;
+  // ignore: unused_field
+  final UserDBLocalService _userDataLocal;
   final ImageService _imageService;
   final AuthService _authService;
 

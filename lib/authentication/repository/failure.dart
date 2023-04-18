@@ -16,6 +16,10 @@ class UserDataError extends Failure {
  const UserDataError({required super.errorMessage});
 }
 
+class TutorDataError extends Failure {
+ const TutorDataError({required super.errorMessage});
+}
+
 class SignUpWithEmailAndPasswordException implements Exception {
 
   const SignUpWithEmailAndPasswordException([
@@ -92,6 +96,8 @@ class SignInWithEmailAndPasswordException implements Exception {
 class SignOutException implements Exception {}
 
 class UserStoreException implements Exception {}
+
+class TutorStoreException implements Exception {}
 
 class LogInWithGoogleException implements Exception {
   /// {@macro log_in_with_google_failure}

@@ -1,65 +1,36 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:hive_flutter/adapters.dart';
 import 'package:vooms/authentication/pages/blocs/app_state_cubit/app_state_cubit.dart';
 import 'package:vooms/authentication/pages/blocs/signin_cubit/sign_in_cubit.dart';
 import 'package:vooms/authentication/pages/blocs/signup_cubit/sign_up_cubit.dart';
 import 'package:vooms/authentication/pages/sign_in_page.dart';
 import 'package:vooms/authentication/repository/auth_repository.dart';
-import 'package:vooms/authentication/repository/auth_service_impl.dart';
-import 'package:vooms/authentication/repository/image_service_impl.dart';
-import 'package:vooms/authentication/repository/user_data_local_impl.dart';
-import 'package:vooms/authentication/repository/user_data_remote_impl.dart';
-import 'package:vooms/authentication/repository/user_repository.dart';
-import 'package:vooms/authentication/repository/user_repository_impl.dart';
 import 'package:vooms/bottom_nav_bar/main_bottom_nav.dart';
+import 'package:vooms/dependency.dart';
 import 'package:vooms/shareds/general_helper/ui_color_constants.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 
 class App extends StatelessWidget {
   App({Key? key}) : super(key: key);
 
-  final _authRepository = AuthRepositoryImpl(
-      AuthServicesImpl(FirebaseAuth.instance, GoogleSignIn()),
-      UserDataRemoteImpl(FirebaseFirestore.instance),
-      UserDataLocalImpl(Hive.box("user_data")));
-
-  final _userRepository = UserRepositoryImpl(
-      UserDataRemoteImpl(FirebaseFirestore.instance),
-      UserDataLocalImpl(Hive.box("user_data")),
-      ImageServiceImpl(FirebaseStorage.instance),
-      AuthServicesImpl(FirebaseAuth.instance, GoogleSignIn()));
 
   @override
   Widget build(BuildContext context) {
-    return MultiRepositoryProvider(
+    return MultiBlocProvider(
       providers: [
-        RepositoryProvider<AuthRepository>(
-          create: (context) => _authRepository,
-        ),
-        RepositoryProvider<UserRepository>(
-          create: (context) => _userRepository,
-        ),
+        BlocProvider(create: (context) => sl<SignInCubit>()),
+        BlocProvider(create: (context) => sl<SignUpCubit>()),
+        BlocProvider(create: (context) => sl<AppStateCubit>()),
       ],
-      child: MultiBlocProvider(
-        providers: [
-          BlocProvider(create: (context) => SignUpCubit(_authRepository)),
-          BlocProvider(create: (context) => SignInCubit(_authRepository)),
-          BlocProvider(create: (context) => AppStateCubit(_authRepository)),
-        ],
-        child: MaterialApp(
-          title: 'Vooms',
-          theme: ThemeData(
-              primarySwatch: UIColorConstant.materialPrimaryBlue,
-              hintColor: UIColorConstant.accentGrey1,
-              errorColor: UIColorConstant.primaryRed,
-              fontFamily: GoogleFonts.dmMono().toString()),
-          home: const OnStartUpPage(),
-        ),
+      child: MaterialApp(
+        title: 'Vooms',
+        theme: ThemeData(
+            primarySwatch: UIColorConstant.materialPrimaryBlue,
+            hintColor: UIColorConstant.accentGrey1,
+            errorColor: UIColorConstant.primaryRed,
+            fontFamily: GoogleFonts.dmMono().toString()),
+        home: const OnStartUpPage(),
       ),
     );
   }
@@ -76,8 +47,8 @@ class _OnStartUpPageState extends State<OnStartUpPage> {
   @override
   void initState() {
     if (mounted) {
-      context.read<AuthRepository>().listenToUserChanges().listen((event) {
-        context.read<AppStateCubit>().startListentStateChanges(event);
+      sl<AuthRepository>().listenAuthChanges().listen((event) {
+         context.read<AppStateCubit>().startListentStateChanges(event);
       });
     }
     super.initState();
