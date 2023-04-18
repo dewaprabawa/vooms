@@ -1,10 +1,13 @@
 import 'dart:math';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:vooms/activity/pages/tutor_cubit/tutor_cubit.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:vooms/activity/pages/tutor_detail_page.dart';
 import 'package:vooms/activity/repository/tutor_entity.dart';
+import 'package:vooms/shareds/components/color_rundom.dart';
 import 'package:vooms/shareds/general_helper/ui_color_constants.dart';
 
 class TutorListPage extends StatefulWidget {
@@ -60,7 +63,12 @@ class _TutorListView extends StatelessWidget {
             final itemTile = _TutorItemTile(
               entity: entities[index],
             );
-            return GestureDetector(onTap: () {}, child: itemTile);
+            return GestureDetector(onTap: () {
+              var route = CupertinoPageRoute(builder: ((context) => TutorDetailPage(
+                entity: entities[index],
+              )));
+              Navigator.push(context, route);
+            }, child: itemTile);
           }),
     );
   }
@@ -126,7 +134,7 @@ class _TutorItemTile extends StatelessWidget {
                   style: GoogleFonts.dmMono(fontWeight: FontWeight.w500)),
               const Icon(
                 Icons.star_rounded,
-                color: Color(0xffFFB322),
+                color: UIColorConstant.softOrange,
               ),
               Text(
                 "${entity.tutorDetails.popularity.rating}",
@@ -192,15 +200,3 @@ class _TutorItemTile extends StatelessWidget {
   }
 }
 
-extension ColorExtension on Color {
-  static Random _random = Random();
-
-  static Color random() {
-    return Color.fromARGB(
-      255,
-      _random.nextInt(256),
-      _random.nextInt(256),
-      _random.nextInt(256),
-    );
-  }
-}

@@ -83,7 +83,7 @@ class _SignInPageState extends State<SignInPage> {
                   padding: const EdgeInsets.only(
                       left: 20, right: 100, bottom: 20, top: 20),
                   child: Text(
-                    "Selamat datang, ayo mulai belajar skill baru.",
+                    WordingAuthConstants.labelHeaderSignIn,
                     style: GoogleFonts.dmMono().copyWith(
                         color: Colors.black,
                         fontSize: 20,
@@ -93,7 +93,7 @@ class _SignInPageState extends State<SignInPage> {
                 const SizedBox(height: 5.0),
                 MtextField(
                   textInputAction: TextInputAction.next,
-                  hintText: "ex: Thomas@mail.com",
+                  hintText: WordingAuthConstants.labelHintEmail,
                   isShakeErrorAnimationActive: true,
                   labelText: WordingAuthConstants.labelEmailTextField,
                   controller: _emailController,
@@ -108,7 +108,7 @@ class _SignInPageState extends State<SignInPage> {
                 MtextField(
                   isSecurity: state.isSecurity,
                   textInputAction: TextInputAction.next,
-                  hintText: "ex: ***********",
+                  hintText: WordingAuthConstants.labelhintPassword,
                   isShakeErrorAnimationActive: true,
                   labelText: WordingAuthConstants.labelPasswordTextField,
                   controller: _passwordController,
@@ -138,7 +138,7 @@ class _SignInPageState extends State<SignInPage> {
                           onChanged: (value) {
                             context.read<SignInCubit>().isRememberMe(value!);
                           }),
-                      Text("Ingat saya?",
+                      Text(WordingAuthConstants.labelRememberMe,
                           style: GoogleFonts.dmMono(
                               color: Colors.black,
                               fontSize: 13,
@@ -150,7 +150,7 @@ class _SignInPageState extends State<SignInPage> {
                               builder: (context) => const ResetPasswordPage());
                           Navigator.push(context, route);
                         },
-                        child: Text("Lupa password",
+                        child: Text(WordingAuthConstants.labelForgotPassword,
                             style: GoogleFonts.dmMono(
                               color: Colors.black,
                               fontSize: 13,
@@ -178,7 +178,7 @@ class _SignInPageState extends State<SignInPage> {
                       : () async {
                           await context.read<SignInCubit>().signInUser();
                         },
-                  text: 'Masuk Sekarang',
+                  text: WordingAuthConstants.labelButtonSignIn,
                 ),
                 const SizedBox(height: 15.0),
                 Center(
@@ -191,7 +191,7 @@ class _SignInPageState extends State<SignInPage> {
                   width: double.infinity,
                   height: 45,
                   margin: const EdgeInsets.symmetric(horizontal: 20),
-                  text: "Google",
+                  text: WordingAuthConstants.labelButtonGoogle,
                   leadingChild: Image.asset(UIAssetConstants.googleButtonImage),
                   onPressed: () async {
                     await context.read<SignUpCubit>().loginWithGoogle();
@@ -206,7 +206,7 @@ class _SignInPageState extends State<SignInPage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text("Belum mempunyai akun?",
+                      Text(WordingAuthConstants.labelHasNotHaveAccount,
                           style: GoogleFonts.dmMono(
                               color: Colors.black, fontSize: 13)),
                       const SizedBox(

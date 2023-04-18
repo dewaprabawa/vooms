@@ -19,6 +19,8 @@ import 'package:vooms/authentication/repository/user_data_local_impl.dart';
 import 'package:vooms/authentication/repository/user_data_remote_impl.dart';
 import 'package:vooms/authentication/repository/user_repository.dart';
 import 'package:vooms/authentication/repository/user_repository_impl.dart';
+import 'package:vooms/chat/chat_repository/chat_service.dart';
+import 'package:vooms/chat/chat_repository/chat_service_impl.dart';
 import 'package:vooms/profile/pages/cubit/profile_cubit.dart';
 
 import 'shareds/general_helper/firebase_key_constant.dart';
@@ -56,7 +58,9 @@ Future<void> setupServiceLocator() async {
   sl.registerLazySingleton<TutorDBservice>(() => TutorDataRemoteImpl(sl(),
       sl()));
 
-  sl.registerLazySingleton<TutorRepository>(() => TutorRepositoryImpl(sl()));    
+  sl.registerLazySingleton<TutorRepository>(() => TutorRepositoryImpl(sl())); 
+
+  sl.registerLazySingleton<ChatService>(() => ChatServiceImpl(sl()));   
 
   sl.registerFactory(() => TutorCubit(sl<TutorRepository>()));
   sl.registerFactory(() => ProfileCubit(sl<UserRepository>()));
