@@ -1,10 +1,9 @@
 import 'package:dartz/dartz.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:vooms/authentication/repository/auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:vooms/authentication/repository/db_service.dart';
 import 'package:vooms/authentication/repository/failure.dart';
+import 'package:vooms/authentication/repository/user_data_local_impl.dart';
 import 'package:vooms/authentication/repository/user_data_remote_impl.dart';
 import 'package:vooms/authentication/repository/user_entity.dart';
 import 'package:vooms/authentication/repository/user_model.dart';
@@ -31,7 +30,7 @@ abstract class AuthRepository {
   Future<Either<Failure, Unit>> signOutUser();
 
   // A stream that listens for changes in the current user's authentication state.
-  Stream<bool> listenToUserChanges();
+  Stream<bool> listenAuthChanges();
 
   Future<void> saveUserCredentials(
       String email, String password, bool rememberMe);
@@ -43,8 +42,8 @@ abstract class AuthRepository {
 
 class AuthRepositoryImpl with CheckMethod implements AuthRepository {
   final AuthService _authService;
-  final DBservice _authStoreRemote;
-  final DBservice _authStoreLocal;
+  final UserDBRemoteService _authStoreRemote;
+  final UserDBLocalService _authStoreLocal;
 
   AuthRepositoryImpl(
       this._authService, this._authStoreRemote, this._authStoreLocal);
@@ -128,7 +127,7 @@ class AuthRepositoryImpl with CheckMethod implements AuthRepository {
   }
 
   @override
-  Stream<bool> listenToUserChanges() {
+  Stream<bool> listenAuthChanges() {
     return _authService.onAuthStateChanged.map((event) {
       return event != null;
     });

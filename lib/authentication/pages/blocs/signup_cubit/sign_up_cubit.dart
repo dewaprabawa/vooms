@@ -122,23 +122,28 @@ class SignUpCubit extends Cubit<SignUpState> {
   Future<void> signUp() async {
     if (state.status.isInvalid) return;
     emit(state.copyWith(status: FormzStatus.submissionInProgress));
-    final data = await _authRepository.signUpUser(
+    final either = await _authRepository.signUpUser(
         fullname: state.fullName.value,
         phone: state.phoneNumber.value,
         email: state.email.value,
         password: state.password.value);
-    data.fold((error) {
-      emit(state.copyWith(
+
+    if (either.isLeft()) {
+      either.leftMap((error) => emit(state.copyWith(
           errorMessage: error.errorMessage,
-          status: FormzStatus.submissionFailure));
-    }, (_) {
+          status: FormzStatus.submissionFailure)));
+      return;
+    }
+
+    if (either.isRight()) {
       emit(state.copyWith(
-          status: FormzStatus.submissionSuccess,
-          fullName: FullName.pure(),
-          email: Email.pure(),
-          password: Password.pure(),
-          confirmPassword: ConfirmPassword.pure(),
-          phoneNumber: PhoneNumber.pure()));
-    });
+        fullName: const FullName.pure(),
+        email: const Email.pure(),
+        password: const Password.pure(),
+        confirmPassword: const ConfirmPassword.pure(),
+        phoneNumber: const PhoneNumber.pure(),
+        status: FormzStatus.submissionSuccess,
+      ));
+    }
   }
 }

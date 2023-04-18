@@ -10,6 +10,7 @@ import 'package:vooms/authentication/pages/components/on_will_bloc_pop.dart';
 import 'package:vooms/authentication/pages/reset_password_page.dart';
 import 'package:vooms/authentication/pages/sign_up_page.dart';
 import 'package:vooms/authentication/repository/auth_repository.dart';
+import 'package:vooms/dependency.dart';
 import 'package:vooms/shareds/components/app_dialog.dart';
 import 'package:vooms/shareds/components/m_filled_button.dart';
 import 'package:vooms/shareds/components/m_outline_button.dart';
@@ -38,8 +39,7 @@ class _SignInPageState extends State<SignInPage> {
 
   void _startRememberMe() {
     Future.microtask(() async {
-      final cacheCredential =
-          await context.read<AuthRepository>().getUserCredentials();
+      final cacheCredential = await sl<AuthRepository>().getUserCredentials();
       debugPrint("==iSREMEBER ${cacheCredential["rememberMe"]}");
       if (cacheCredential.isNotEmpty && cacheCredential["rememberMe"]) {
         _emailController.text = cacheCredential["email"];
@@ -83,7 +83,7 @@ class _SignInPageState extends State<SignInPage> {
                   padding: const EdgeInsets.only(
                       left: 20, right: 100, bottom: 20, top: 20),
                   child: Text(
-                    "Selamat datang, ayo mulai belajar skill baru.",
+                    WordingAuthConstants.labelHeaderSignIn,
                     style: GoogleFonts.dmMono().copyWith(
                         color: Colors.black,
                         fontSize: 20,
@@ -93,7 +93,7 @@ class _SignInPageState extends State<SignInPage> {
                 const SizedBox(height: 5.0),
                 MtextField(
                   textInputAction: TextInputAction.next,
-                  hintText: "ex: Thomas@mail.com",
+                  hintText: WordingAuthConstants.labelHintEmail,
                   isShakeErrorAnimationActive: true,
                   labelText: WordingAuthConstants.labelEmailTextField,
                   controller: _emailController,
@@ -108,7 +108,7 @@ class _SignInPageState extends State<SignInPage> {
                 MtextField(
                   isSecurity: state.isSecurity,
                   textInputAction: TextInputAction.next,
-                  hintText: "ex: ***********",
+                  hintText: WordingAuthConstants.labelhintPassword,
                   isShakeErrorAnimationActive: true,
                   labelText: WordingAuthConstants.labelPasswordTextField,
                   controller: _passwordController,
@@ -138,18 +138,19 @@ class _SignInPageState extends State<SignInPage> {
                           onChanged: (value) {
                             context.read<SignInCubit>().isRememberMe(value!);
                           }),
-                      Text("Ingat saya?",
+                      Text(WordingAuthConstants.labelRememberMe,
                           style: GoogleFonts.dmMono(
                               color: Colors.black,
                               fontSize: 13,
                               fontWeight: FontWeight.w500)),
                       const Spacer(),
                       GestureDetector(
-                        onTapUp: (detail){
-                          var route = CupertinoPageRoute(builder: (context) => const ResetPasswordPage());
+                        onTapUp: (detail) {
+                          var route = CupertinoPageRoute(
+                              builder: (context) => const ResetPasswordPage());
                           Navigator.push(context, route);
                         },
-                        child: Text("Lupa password",
+                        child: Text(WordingAuthConstants.labelForgotPassword,
                             style: GoogleFonts.dmMono(
                               color: Colors.black,
                               fontSize: 13,
@@ -171,12 +172,13 @@ class _SignInPageState extends State<SignInPage> {
                   trailingChild: state.status.isSubmissionInProgress
                       ? const CircularProgressIndicator.adaptive()
                       : const SizedBox.shrink(),
-                  onPressed: context.read<SignInCubit>().isStillPure
+                  onPressed: context.read<SignInCubit>().isStillPure ||
+                          state.status.isSubmissionInProgress
                       ? null
                       : () async {
                           await context.read<SignInCubit>().signInUser();
                         },
-                  text: 'Masuk Sekarang',
+                  text: WordingAuthConstants.labelButtonSignIn,
                 ),
                 const SizedBox(height: 15.0),
                 Center(
@@ -189,7 +191,7 @@ class _SignInPageState extends State<SignInPage> {
                   width: double.infinity,
                   height: 45,
                   margin: const EdgeInsets.symmetric(horizontal: 20),
-                  text: "Google",
+                  text: WordingAuthConstants.labelButtonGoogle,
                   leadingChild: Image.asset(UIAssetConstants.googleButtonImage),
                   onPressed: () async {
                     await context.read<SignUpCubit>().loginWithGoogle();
@@ -204,7 +206,7 @@ class _SignInPageState extends State<SignInPage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text("Belum mempunyai akun?",
+                      Text(WordingAuthConstants.labelHasNotHaveAccount,
                           style: GoogleFonts.dmMono(
                               color: Colors.black, fontSize: 13)),
                       const SizedBox(

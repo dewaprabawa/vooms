@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Message {
-  final String id;
+  String id;
   final String senderId;
   final String content;
   final Timestamp timestamp;
@@ -14,7 +14,7 @@ class Message {
 
   factory Message.fromFirestore(Map<String, dynamic> data) {
     return Message(
-      id: data['id'],
+      id: data['id'] ?? "",
       senderId: data['senderId'],
       content: data['content'],
       timestamp: data['timestamp'],

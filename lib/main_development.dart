@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:vooms/app.dart';
+import 'package:vooms/dependency.dart';
 import 'package:vooms/firebase_options.dart';
 import 'package:vooms/hive_configuration.dart';
 
@@ -15,5 +16,6 @@ void main() async {
   
   Bloc.observer = AppBlocObserver();
   await registerHives();
+  await setupServiceLocator();
   runApp(App());
 }
