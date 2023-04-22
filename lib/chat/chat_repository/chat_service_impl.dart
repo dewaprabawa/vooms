@@ -106,7 +106,7 @@ class ChatServiceImpl implements ChatService {
         .map((querySnapshot) {
       List<Member> conversations = [];
       for (QueryDocumentSnapshot doc in querySnapshot.docs) {
-        Member member = Member.fromFirestore(doc.data()!.toMap());
+        Member member = Member.fromJson(doc.data()!.toMap());
         conversations.add(member);
       }
       return conversations;
@@ -170,15 +170,13 @@ class ChatServiceImpl implements ChatService {
     for (String memberId in memberIds) {
       Map<String, dynamic> userData = await _getUserPhotoUrl(memberId);
 
-      String photoUrl =
-          userData.containsKey('photoUrl') ? userData['photoUrl'] : '';
       String fullName =
           userData.containsKey('fullname') ? userData['fullname'] : '';
 
       Map<String, dynamic> memberDetail = {
         'lastSeen': Timestamp.now(),
-        'photoUrl': photoUrl,
         'displayName': fullName,
+        'userId': memberId,
       };
 
       membersDetails.add(memberDetail);
@@ -198,6 +196,15 @@ class ChatServiceImpl implements ChatService {
       }
     }
     return memberId;
+  }
+  
+  @override
+  Stream<Member> getMemberById(List<String> ids) {
+    print(ids);
+    return _groupReference.doc(_createMemberId(ids)).snapshots().map((event){
+     print(event.data());
+      return Member.fromJson(event.data()!.toMap());
+    });
   }
 }
 

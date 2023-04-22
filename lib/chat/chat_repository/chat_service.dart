@@ -9,6 +9,7 @@ abstract class ChatService {
       List<String> memberIds, String senderId, String content,
       {String imageUrl, String videoUrl});
   Stream<List<Message>> getMessagesByMemberIds(List<String> ids);
+  Stream<Member> getMemberById(List<String> ids);
   Stream<List<Member>> getMemeberByUserId(String userId);
   Future<UserModel?> currentUser();
 }
