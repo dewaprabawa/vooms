@@ -1,7 +1,8 @@
 
 class FirebaseKeyConstant {
   static String collectionUserKey = "user_store";
-  static String collectionConversationKey = "conversations";
+  static String collectionGroupKey = "group";
+  static String collectionMessageKey = "message";
   static String collectionTutorKey = "teacher_role";
 }
 
