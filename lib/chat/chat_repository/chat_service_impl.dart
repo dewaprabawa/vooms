@@ -1,73 +1,66 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:vooms/authentication/repository/auth_service.dart';
+import 'package:vooms/authentication/repository/user_model.dart';
 import 'package:vooms/chat/chat_repository/chat_service.dart';
-import 'package:vooms/chat/entities/conversation.dart';
+import 'package:vooms/chat/entities/member.dart';
 import 'package:vooms/chat/entities/message.dart';
 import 'package:vooms/shareds/general_helper/firebase_key_constant.dart';
 
 class ChatServiceImpl implements ChatService {
-  late final CollectionReference _conversationsCollection;
+  late final CollectionReference _groupReference;
   late final CollectionReference _collectionUserReference;
+  late final CollectionReference _messageReference;
   final AuthService _authService;
 
   ChatServiceImpl(this._authService) {
-    _conversationsCollection = FirebaseFirestore.instance
-        .collection(FirebaseKeyConstant.collectionConversationKey);
+    _groupReference = FirebaseFirestore.instance
+        .collection(FirebaseKeyConstant.collectionGroupKey);
+    _messageReference = FirebaseFirestore.instance
+        .collection(FirebaseKeyConstant.collectionMessageKey);
     _collectionUserReference = FirebaseFirestore.instance
         .collection(FirebaseKeyConstant.collectionUserKey);
-        
   }
-
   @override
-  Future<void> createConversation(
-      String? name, String type, List<String> memberIds) async {
-    List<Map<String, dynamic>> membersData = [];
+  Future<void> createMember(String? name, String type, List<String> memberIds,
+      String senderId) async {
+    try {
+      // Get details of all members
+      final membersDetails = await _createMemberDetail(memberIds);
 
-    for (int i = 0; i < memberIds.length; i++) {
-      String userId = memberIds[i];
-      String? memberPhotoUrl = await getUserPhotoUrl(
-          userId); // assuming a function to get the member's photo URL is defined somewhere
-      Map<String, dynamic> memberData = {
-        'userId': userId,
-        'lastSeen': Timestamp.now(),
-        'photoUrl': memberPhotoUrl,
-      };
-      membersData.add(memberData);
-    }
+      // Create a unique id for the group based on sorted member ids
+      final memberId = _createMemberId(memberIds);
 
-    if (type == "user") {
-      // One-to-one conversation
-      membersData.sort((a, b) => a['userId'].compareTo(b['userId']));
-      String id = membersData[0]['userId'] + "_" + membersData[1]['userId'];
-      DocumentReference docRef = _conversationsCollection.doc(id);
+      // Check if a group with the same member ids already exists
+      final participants =
+          await _groupReference.where('memberIds', isEqualTo: memberId).get();
 
-      Map<String, dynamic> data = {
-        'type': type,
-        'members': membersData,
-      };
-
-      if (name != null) {
-        data['name'] = name;
+      // If a group with the same member ids exists, return without creating a new one
+      if (participants.docs.isNotEmpty) {
+        return;
       }
 
-      await docRef.set(data);
-    } else {
-      // Group conversation
-      await _conversationsCollection.add({
-        'name': name,
+      // Create a new group
+      Map<String, dynamic> data = {
+        'createdAt': Timestamp.now(),
+        'id': memberId,
+        'createdBy': senderId,
         'type': type,
-        'members': membersData,
-      });
+        'memberIds': memberId,
+        'memberDetail': membersDetails,
+        if (name != null) 'name': name,
+      };
+      await _groupReference.doc(memberId).set(data);
+    } catch (e) {
+      rethrow;
     }
   }
 
   @override
   Future<void> sendMessage(
-      String conversationId, String senderId, String content,
+      List<String> memberIds, String senderId, String content,
       {String? imageUrl, String? videoUrl}) async {
-    CollectionReference messagesCollection =
-        _conversationsCollection.doc(conversationId).collection('messages');
+    final memberId = _createMemberId(memberIds);
 
     Map<String, dynamic> messageData = {
       'senderId': senderId,
@@ -77,7 +70,7 @@ class ChatServiceImpl implements ChatService {
 
     if (imageUrl != null) {
       String imageRefPath =
-          'images/$conversationId/${DateTime.now().millisecondsSinceEpoch}.jpg';
+          'images/$memberId/${DateTime.now().millisecondsSinceEpoch}.jpg';
       Reference imageRef = FirebaseStorage.instance.ref().child(imageRefPath);
       UploadTask uploadTask = imageRef.putString(
         imageUrl,
@@ -89,7 +82,7 @@ class ChatServiceImpl implements ChatService {
 
     if (videoUrl != null) {
       String videoRefPath =
-          'videos/$conversationId/${DateTime.now().millisecondsSinceEpoch}.mp4';
+          'videos/$memberId/${DateTime.now().millisecondsSinceEpoch}.mp4';
       Reference videoRef = FirebaseStorage.instance.ref().child(videoRefPath);
       UploadTask uploadTask = videoRef.putString(videoUrl);
       TaskSnapshot snapshot = await uploadTask;
@@ -97,31 +90,35 @@ class ChatServiceImpl implements ChatService {
       messageData['videoUrl'] = downloadUrl;
     }
 
-    messagesCollection.add(messageData);
+    await _messageReference
+        .doc(memberId)
+        .collection("messages")
+        .add(messageData);
+
+    await _updateMemberRecentMessage(memberId, content, senderId);
   }
 
   @override
-  Stream<List<Conversation>> getConversationsForUser(String userId) {
-    return _conversationsCollection
-        .where('members', arrayContains: {'userId': userId})
+  Stream<List<Member>> getMemeberByUserId(String userId) {
+    return _groupReference
+        .where('createdBy', isEqualTo: userId)
         .snapshots()
         .map((querySnapshot) {
-          List<Conversation> conversations = [];
-          for (QueryDocumentSnapshot doc in querySnapshot.docs) {
-            Conversation conversation = Conversation.fromFirestore(doc);
-            conversation.id = doc.id;
-            conversations.add(conversation);
-          }
-          return conversations;
-        });
+      List<Member> conversations = [];
+      for (QueryDocumentSnapshot doc in querySnapshot.docs) {
+        Member member = Member.fromFirestore(doc.data()!.toMap());
+        conversations.add(member);
+      }
+      return conversations;
+    });
   }
 
   @override
-  Stream<List<Message>> getMessagesForConversation(String conversationId) {
-    return _conversationsCollection
-        .doc(conversationId)
+  Stream<List<Message>> getMessagesByMemberIds(List<String> ids) {
+    return _messageReference
+        .doc(_createMemberId(ids))
         .collection('messages')
-        .orderBy('timestamp', descending: true)
+        .orderBy('timestamp', descending: false)
         .snapshots()
         .map((querySnapshot) {
       List<Message> messages = [];
@@ -136,31 +133,105 @@ class ChatServiceImpl implements ChatService {
   }
 
   @override
-  Future<String> getConversationId(String user1Id, String user2Id) async {
-    String conversationId;
-    QuerySnapshot conversations = await _conversationsCollection
-        .where('members.userId', arrayContains: [user1Id, user2Id]).get();
-
-    if (conversations.docs.isNotEmpty) {
-      conversationId = conversations.docs.first.id;
-    } else {
-      List<String> memberIds = [user1Id, user2Id];
-      memberIds.sort();
-      conversationId = memberIds.join('_');
-      await createConversation(null, 'user', memberIds);
+  Future<UserModel?> currentUser() async {
+    final model = await _authService.currentUser;
+    if (model != null) {
+      return model;
     }
-
-    return conversationId;
+    return null;
   }
 
-  Future<String?> getUserPhotoUrl(String userId) async {
+  Future<Map<String, dynamic>> _getUserPhotoUrl(String userId) async {
     DocumentSnapshot<Object?> snapshot =
         await _collectionUserReference.doc(userId).get();
 
     if (snapshot.exists) {
-      return (snapshot.data() as Map<String, dynamic>)["photoUrl"];
+      return (snapshot.data() as Map<String, dynamic>);
     } else {
-      return null;
+      return {};
+    }
+  }
+
+  Future<void> _updateMemberRecentMessage(
+      String groupId, String content, String senderId) async {
+    await _groupReference.doc(groupId).update({
+      "recentMessage": {
+        "message": content,
+        "sentAt": Timestamp.now(),
+        "sentBy": senderId
+      }
+    });
+  }
+
+  Future<List<Map<String, dynamic>>> _createMemberDetail(
+      List<String> memberIds) async {
+    List<Map<String, dynamic>> membersDetails = [];
+
+    for (String memberId in memberIds) {
+      Map<String, dynamic> userData = await _getUserPhotoUrl(memberId);
+
+      String photoUrl =
+          userData.containsKey('photoUrl') ? userData['photoUrl'] : '';
+      String fullName =
+          userData.containsKey('fullname') ? userData['fullname'] : '';
+
+      Map<String, dynamic> memberDetail = {
+        'lastSeen': Timestamp.now(),
+        'photoUrl': photoUrl,
+        'displayName': fullName,
+      };
+
+      membersDetails.add(memberDetail);
+    }
+
+    return membersDetails;
+  }
+
+  String _createMemberId(List<String> memberIds) {
+    String memberId = "";
+    memberIds.sort((a, b) => a.compareTo(b));
+    for (int i = 0; i < memberIds.length; i++) {
+      if (i == memberIds.length - 1) {
+        memberId += memberIds[i];
+      } else {
+        memberId += memberIds[i] + "_";
+      }
+    }
+    return memberId;
+  }
+}
+
+extension on Object {
+  Map<String, dynamic> toMap() {
+    return this as Map<String, dynamic>;
+  }
+}
+
+extension TimeStampExtension on Timestamp {
+  String toTime() {
+    // Convert the Timestamp to a DateTime object
+    final dateTime = this.toDate();
+
+    // Calculate the difference in time
+    final diff = DateTime.now().difference(dateTime);
+
+    // Convert the difference to a human-readable format
+    if (diff.inDays > 2) {
+      return '${diff.inDays} days ago';
+    } else if (diff.inDays == 2) {
+      return '2 days ago';
+    } else if (diff.inDays == 1) {
+      return 'yesterday';
+    } else if (diff.inHours >= 1) {
+      return '${diff.inHours} hours ago';
+    } else if (diff.inMinutes >= 1) {
+      return '${diff.inMinutes} minutes ago';
+    } else {
+      return 'just now';
     }
   }
 }
+
+
+
+

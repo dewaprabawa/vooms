@@ -36,7 +36,7 @@ class TutorDetailPage extends StatelessWidget {
                   onPressed: () {
                     var route = CupertinoPageRoute(
                         builder: (context) =>
-                            ChatRoomPage(recipientId: entity.id));
+                            ChatRoomPage(entity: entity,));
                     Navigator.push(context, route);
                   },
                   icon: const Icon(
