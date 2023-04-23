@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class Member {
+class Conversation {
   String memberIds;
   String id;
   List<MemberDetail> memberDetail;
@@ -9,7 +9,7 @@ class Member {
   Timestamp createdAt;
   String name;
 
-  Member({
+  Conversation({
     required this.memberIds,
     required this.id,
     required this.memberDetail,
@@ -19,11 +19,11 @@ class Member {
     required this.name,
   });
 
-  factory Member.fromJson(Map<String, dynamic> json) {
+  factory Conversation.fromJson(Map<String, dynamic> json) {
     List<dynamic> memberDetailList = json['memberDetail'];
     List<MemberDetail> memberDetail = memberDetailList.map((e) => MemberDetail.fromJson(e)).toList();
     
-    return Member(
+    return Conversation(
       memberIds: json['memberIds'],
       id: json['id'],
       memberDetail: memberDetail,

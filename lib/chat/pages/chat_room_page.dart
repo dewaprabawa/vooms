@@ -8,7 +8,7 @@ import 'package:vooms/activity/repository/tutor_entity.dart';
 import 'package:vooms/authentication/repository/auth_service.dart';
 import 'package:vooms/chat/chat_repository/chat_service.dart';
 import 'package:vooms/chat/chat_repository/chat_service_impl.dart';
-import 'package:vooms/chat/entities/member.dart';
+import 'package:vooms/chat/entities/conversation.dart';
 import 'package:vooms/chat/entities/message.dart';
 import 'package:vooms/dependency.dart';
 import 'package:vooms/shareds/components/m_cached_image.dart';
@@ -26,10 +26,10 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
   late final TextEditingController _senderTextField;
   late final ScrollController _scrollController;
   List<Message> _messages = [];
-  Member? _member;
+  Conversation? _conversation;
   String _senderId = '';
   StreamSubscription<List<Message>>? _streamMessageSubscription;
-  StreamSubscription<Member>? _streamMemberSubscription;
+  StreamSubscription<Conversation?>? _streamConversationSubscription;
   bool _isLoading = true;
 
   @override
@@ -38,6 +38,45 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
     _scrollController = ScrollController();
     _senderTextField = TextEditingController();
     _listenMessage();
+  }
+
+  @override
+  void dispose() {
+    _dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      bottomNavigationBar: BottomMessageInput(
+        senderTextField: _senderTextField,
+        onPressed: _sendMessage,
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            AppBarChat(
+              entity: widget.recepientEntity,
+              conversation: _conversation,
+            ),
+            if (_isLoading)
+              const CircularProgressIndicator()
+            else 
+              Flexible(
+                child: ListView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    itemCount: _messages.length,
+                    itemBuilder: (context, index) {
+                      return BuildMessageRow(
+                          senderId: _senderId, message: _messages[index]);
+                    }),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _defaultToBottom() {
@@ -50,13 +89,14 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
     }
   }
 
-  void _listenMessage() async {
+ void _listenMessage() async {
     try {
       setState(() {
         _isLoading = true;
       });
 
       final currentUser = await sl<ChatService>().currentUser();
+
       if (currentUser != null) {
         _senderId = currentUser.uid;
       }
@@ -64,31 +104,37 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
       await sl<ChatService>().createMember(
           '', 'user', [_senderId, widget.recepientEntity.id], _senderId);
 
-      _streamMessageSubscription = sl<ChatService>().getMessagesByMemberIds(
-          [_senderId, widget.recepientEntity.id]).listen((event) {
+      _streamMessageSubscription = sl<ChatService>()
+          .getMessagesByConversationIds(
+              [_senderId, widget.recepientEntity.id]).listen((event) {
         setState(() {
           _messages = event;
         });
         // Wait for the _messages list to be initialized before scrolling to the bottom.
-        WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
           _defaultToBottom();
         });
+      }, onError: (error) {
+        debugPrint('Error fetching messages: $error');
       });
 
-      _streamMemberSubscription = sl<ChatService>().getMemberById(
+      _streamConversationSubscription = sl<ChatService>().getConversationById(
           [_senderId, widget.recepientEntity.id]).listen((event) {
         setState(() {
-          _member = event;
+          _conversation = event;
         });
+      }, onError: (error) {
+        debugPrint('Error fetching conversation: $error');
       });
     } catch (error) {
-      debugPrint(error.toString());
+      debugPrint('Error: $error');
     } finally {
       setState(() {
         _isLoading = false;
       });
     }
   }
+
 
   void _sendMessage() async {
     try {
@@ -110,45 +156,26 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
     }
   }
 
-  @override
-  void dispose() {
+  void _dispose() {
     if (_streamMessageSubscription != null) {
       _streamMessageSubscription?.cancel();
     }
-    if (_streamMemberSubscription != null) {
-      _streamMemberSubscription?.cancel();
+    if (_streamConversationSubscription != null) {
+      _streamConversationSubscription?.cancel();
     }
     _senderTextField.clear();
     _senderTextField.dispose();
-    super.dispose();
   }
+}
+
+class BottomMessageInput extends StatelessWidget {
+  final TextEditingController senderTextField;
+  final void Function() onPressed;
+  const BottomMessageInput(
+      {super.key, required this.senderTextField, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      bottomNavigationBar: _buildBottomNavigationBar(),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(),
-            _isLoading
-                ? const CircularProgressIndicator()
-                : Flexible(
-                    child: ListView.builder(
-                        controller: _scrollController,
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        itemCount: _messages.length,
-                        itemBuilder: (context, index) {
-                          return _buildMessageRow(index);
-                        }),
-                  )
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBottomNavigationBar() {
     return Container(
       margin: const EdgeInsets.only(bottom: 10, right: 10, left: 10, top: 10),
       decoration: BoxDecoration(
@@ -161,7 +188,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
           const SizedBox(width: 10.0),
           Expanded(
             child: TextField(
-              controller: _senderTextField,
+              controller: senderTextField,
               decoration: const InputDecoration(
                 hintText: 'Type a message',
                 border: InputBorder.none,
@@ -169,51 +196,32 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
             ),
           ),
           IconButton(
+            padding: const EdgeInsets.only(bottom: 10),
             icon: const Icon(
               Icons.send_rounded,
               color: UIColorConstant.primaryBlue,
             ),
-            onPressed: _sendMessage,
+            onPressed: onPressed,
           ),
-          const SizedBox(width: 10.0),
         ],
       ),
     );
   }
+}
 
-  Widget _buildHeader() {
-    return Row(
-      children: [
-        IconButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            icon: const Icon(
-              Icons.chevron_left_rounded,
-              size: 38,
-            )),
-        McachedImage(
-          url: widget.recepientEntity.photoUrl,
-        ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              widget.recepientEntity.fullname,
-              style: GoogleFonts.dmMono(fontWeight: FontWeight.bold),
-            ),
-            Text(
-             _member == null ? "...." : "last Seen ${_member?.memberDetail.first.lastSeen.toTime()}",
-              style: GoogleFonts.dmMono(color: UIColorConstant.nativeGrey),
-            ),
-          ],
-        )
-      ],
-    );
-  }
+class BuildMessageRow extends StatelessWidget {
+  const BuildMessageRow({
+    super.key,
+    required this.senderId,
+    required this.message,
+  });
 
-  Widget _buildMessageRow(int index) {
-    bool isMe = _messages[index].senderId == _senderId;
+  final String senderId;
+  final Message message;
+
+  @override
+  Widget build(BuildContext context) {
+    bool isMe = message.senderId == senderId;
     return Padding(
       padding: EdgeInsets.fromLTRB(
           isMe ? 0 : MediaQuery.of(context).size.width / 2,
@@ -238,7 +246,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                           ? UIColorConstant.materialPrimaryRed
                           : UIColorConstant.primaryGreen),
                   child: Text(
-                    _messages[index].content,
+                    message.content,
                     style: GoogleFonts.dmMono(fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -246,7 +254,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                   height: 5,
                 ),
                 Text(
-                  _messages[index].timestamp.toTime(),
+                  message.timestamp.toTime(),
                   style: GoogleFonts.dmMono(
                       fontWeight: FontWeight.w300,
                       color: UIColorConstant.nativeGrey,
@@ -260,6 +268,46 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
           )
         ],
       ),
+    );
+  }
+}
+
+class AppBarChat extends StatelessWidget {
+  final TutorEntity entity;
+  final Conversation? conversation;
+  const AppBarChat({super.key, required this.entity, this.conversation});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: const Icon(
+              Icons.chevron_left_rounded,
+              size: 38,
+            )),
+        McachedImage(
+          url: entity.photoUrl,
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              entity.fullname,
+              style: GoogleFonts.dmMono(fontWeight: FontWeight.bold),
+            ),
+            Text(
+              conversation == null
+                  ? "...."
+                  : "last Seen ${conversation?.memberDetail.first.lastSeen.toTime()}",
+              style: GoogleFonts.dmMono(color: UIColorConstant.nativeGrey),
+            ),
+          ],
+        )
+      ],
     );
   }
 }

@@ -3,7 +3,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:vooms/authentication/repository/auth_service.dart';
 import 'package:vooms/authentication/repository/user_model.dart';
 import 'package:vooms/chat/chat_repository/chat_service.dart';
-import 'package:vooms/chat/entities/member.dart';
+import 'package:vooms/chat/entities/conversation.dart';
 import 'package:vooms/chat/entities/message.dart';
 import 'package:vooms/shareds/general_helper/firebase_key_constant.dart';
 
@@ -26,10 +26,10 @@ class ChatServiceImpl implements ChatService {
       String senderId) async {
     try {
       // Get details of all members
-      final membersDetails = await _createMemberDetail(memberIds);
+      final membersDetails = await _createConversationDetail(memberIds);
 
       // Create a unique id for the group based on sorted member ids
-      final memberId = _createMemberId(memberIds);
+      final memberId = _createConversationId(memberIds);
 
       // Check if a group with the same member ids already exists
       final participants =
@@ -46,7 +46,7 @@ class ChatServiceImpl implements ChatService {
         'id': memberId,
         'createdBy': senderId,
         'type': type,
-        'memberIds': memberId,
+        'memberIds': memberIds,
         'memberDetail': membersDetails,
         if (name != null) 'name': name,
       };
@@ -60,7 +60,7 @@ class ChatServiceImpl implements ChatService {
   Future<void> sendMessage(
       List<String> memberIds, String senderId, String content,
       {String? imageUrl, String? videoUrl}) async {
-    final memberId = _createMemberId(memberIds);
+    final memberId = _createConversationId(memberIds);
 
     Map<String, dynamic> messageData = {
       'senderId': senderId,
@@ -95,18 +95,18 @@ class ChatServiceImpl implements ChatService {
         .collection("messages")
         .add(messageData);
 
-    await _updateMemberRecentMessage(memberId, content, senderId);
+    await _updateConversationRecentMessage(memberId, content, senderId);
   }
 
   @override
-  Stream<List<Member>> getMemeberByUserId(String userId) {
+  Stream<List<Conversation>> getAllConversationByUserId(String userId) {
     return _groupReference
-        .where('createdBy', isEqualTo: userId)
+        .where('memberIds', arrayContains: userId)
         .snapshots()
         .map((querySnapshot) {
-      List<Member> conversations = [];
+      List<Conversation> conversations = [];
       for (QueryDocumentSnapshot doc in querySnapshot.docs) {
-        Member member = Member.fromJson(doc.data()!.toMap());
+        Conversation member = Conversation.fromJson(doc.data()!.toMap());
         conversations.add(member);
       }
       return conversations;
@@ -114,9 +114,9 @@ class ChatServiceImpl implements ChatService {
   }
 
   @override
-  Stream<List<Message>> getMessagesByMemberIds(List<String> ids) {
+  Stream<List<Message>> getMessagesByConversationIds(List<String> ids) {
     return _messageReference
-        .doc(_createMemberId(ids))
+        .doc(_createConversationId(ids))
         .collection('messages')
         .orderBy('timestamp', descending: false)
         .snapshots()
@@ -152,7 +152,7 @@ class ChatServiceImpl implements ChatService {
     }
   }
 
-  Future<void> _updateMemberRecentMessage(
+  Future<void> _updateConversationRecentMessage(
       String groupId, String content, String senderId) async {
     await _groupReference.doc(groupId).update({
       "recentMessage": {
@@ -163,7 +163,7 @@ class ChatServiceImpl implements ChatService {
     });
   }
 
-  Future<List<Map<String, dynamic>>> _createMemberDetail(
+  Future<List<Map<String, dynamic>>> _createConversationDetail(
       List<String> memberIds) async {
     List<Map<String, dynamic>> membersDetails = [];
 
@@ -185,7 +185,7 @@ class ChatServiceImpl implements ChatService {
     return membersDetails;
   }
 
-  String _createMemberId(List<String> memberIds) {
+  String _createConversationId(List<String> memberIds) {
     String memberId = "";
     memberIds.sort((a, b) => a.compareTo(b));
     for (int i = 0; i < memberIds.length; i++) {
@@ -199,11 +199,16 @@ class ChatServiceImpl implements ChatService {
   }
   
   @override
-  Stream<Member> getMemberById(List<String> ids) {
-    print(ids);
-    return _groupReference.doc(_createMemberId(ids)).snapshots().map((event){
-     print(event.data());
-      return Member.fromJson(event.data()!.toMap());
+  Stream<Conversation?> getConversationById(List<String> ids) {
+    return _groupReference.doc(_createConversationId(ids)).snapshots().map((event){
+      if(event.exists){
+        Map<String, dynamic>? map = event.data()?.toMap();
+        if(map != null){
+          return Conversation.fromJson(map);
+        }
+      }else{
+        return null;
+      }
     });
   }
 }
