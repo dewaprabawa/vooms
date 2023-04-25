@@ -21,6 +21,8 @@ class TutorRepositoryImpl implements TutorRepository {
       return Right(tutorEntities);
     } on TutorStoreException catch (e) {
       return Left(TutorDataError(errorMessage: e.toString()));
+    }  catch (e){
+       return Left(TutorDataError(errorMessage: e.toString()));
     }
   }
 }

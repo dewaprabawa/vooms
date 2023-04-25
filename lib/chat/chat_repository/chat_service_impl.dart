@@ -33,7 +33,7 @@ class ChatServiceImpl implements ChatService {
 
       // Check if a group with the same member ids already exists
       final participants =
-          await _groupReference.where('memberIds', isEqualTo: memberId).get();
+          await _groupReference.where('id', isEqualTo: memberId).get();
 
       // If a group with the same member ids exists, return without creating a new one
       if (participants.docs.isNotEmpty) {
@@ -103,11 +103,14 @@ class ChatServiceImpl implements ChatService {
     return _groupReference
         .where('memberIds', arrayContains: userId)
         .snapshots()
-        .map((querySnapshot) {
+        .map((querySnapshot)  {
       List<Conversation> conversations = [];
       for (QueryDocumentSnapshot doc in querySnapshot.docs) {
-        Conversation member = Conversation.fromJson(doc.data()!.toMap());
-        conversations.add(member);
+        var docData = doc.data();
+        if(docData != null){
+          Conversation member = Conversation.fromJson(docData.toMap());
+          conversations.add(member);
+        }
       }
       return conversations;
     });

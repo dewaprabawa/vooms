@@ -61,7 +61,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
               Flexible(
                 child: ListView.builder(
                     controller: _scrollController,
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                     itemCount: _messages.length,
                     itemBuilder: (context, index) {
                       return MessageRow(

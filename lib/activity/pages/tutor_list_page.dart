@@ -36,7 +36,11 @@ class _TutorListPageState extends State<TutorListPage> {
               entities: state.entities,
             );
           case TutorStateStatus.failure:
-            return const SizedBox();
+            return  Center(
+              child: TextButton(onPressed: () async {
+                await context.read<TutorCubit>().getTutors();
+              }, child: Container()),
+            );
           case TutorStateStatus.loading:
             return const Center(
               child: CircularProgressIndicator.adaptive(),
@@ -60,22 +64,25 @@ class _TutorListView extends StatelessWidget {
       child: ListView.builder(
           itemCount: entities.length,
           itemBuilder: (context, index) {
-            final itemTile = _TutorItemTile(
+            final itemTile = _TutorCardTile(
               entity: entities[index],
             );
-            return GestureDetector(onTap: () {
-              var route = CupertinoPageRoute(builder: ((context) => TutorDetailPage(
-                entity: entities[index],
-              )));
-              Navigator.push(context, route);
-            }, child: itemTile);
+            return GestureDetector(
+                onTap: () {
+                  var route = CupertinoPageRoute(
+                      builder: ((context) => TutorDetailPage(
+                            entity: entities[index],
+                          )));
+                  Navigator.push(context, route);
+                },
+                child: itemTile);
           }),
     );
   }
 }
 
-class _TutorItemTile extends StatelessWidget {
-  _TutorItemTile({super.key, required this.entity});
+class _TutorCardTile extends StatelessWidget {
+  _TutorCardTile({super.key, required this.entity});
   final TutorEntity entity;
 
   final BoxDecoration _setupDecoration = BoxDecoration(
@@ -199,4 +206,3 @@ class _TutorItemTile extends StatelessWidget {
     );
   }
 }
-
