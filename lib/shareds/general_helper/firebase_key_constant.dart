@@ -4,6 +4,7 @@ class FirebaseKeyConstant {
   static String collectionGroupKey = "conversation";
   static String collectionMessageKey = "message";
   static String collectionTutorKey = "teacher_role";
+    static String collectionCourseKey = "subject_data";
 }
 
 class HiveKeyConstant {

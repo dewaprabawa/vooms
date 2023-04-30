@@ -33,7 +33,7 @@ class UserRepositoryImpl implements UserRepository {
       }
       return const Left(
           UserDataError(errorMessage: 'Failed to retrieve user data'));
-    } on UserStoreException {
+    } on UserDataException {
       return const Left(
           UserDataError(errorMessage: 'Failed to retrieve user data'));
     }
@@ -57,7 +57,7 @@ class UserRepositoryImpl implements UserRepository {
       }
        return const Left(
           UserDataError(errorMessage: 'Failed to update photo url data'));
-    } on UserStoreException {
+    } on UserDataException {
       return const Left(
           UserDataError(errorMessage: 'Failed to update photo url data'));
     }

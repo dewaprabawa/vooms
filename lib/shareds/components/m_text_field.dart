@@ -25,6 +25,8 @@ class MtextField extends StatefulWidget {
     this.isLabelRequired = false,
     this.isShakeErrorAnimationActive = false,
     this.isSecurity = false,
+    this.enabled = true,
+    this.expands = false,
     this.trailingChild = const SizedBox.shrink(),
     this.leadingChild = const SizedBox.shrink(),
   }) : super(key: key);
@@ -44,8 +46,10 @@ class MtextField extends StatefulWidget {
   final TextStyle? labelStyle;
   final String? errorText;
   final TextStyle? errorStyle;
+  final bool? enabled;
   final Widget trailingChild;
   final Widget leadingChild;
+  final bool expands;
   final void Function(String)? onChanged;
 
   @override
@@ -63,6 +67,8 @@ class _MtextFieldState extends State<MtextField>
     
     //text_field
     Widget textField = TextFormField(
+      expands: widget.expands,
+      enabled: widget.enabled,
       controller: widget.controller,
       onChanged: widget.onChanged,
       style: GoogleFonts.dmMono(),
@@ -99,20 +105,23 @@ class _MtextFieldState extends State<MtextField>
     //label_text
     Widget labelText = const SizedBox.shrink();
     if (widget.labelText != null) {
-      labelText = Row(
-        children: [
-          Text(
-            widget.labelText ?? "",
-            style: GoogleFonts.dmMono().copyWith(fontWeight: FontWeight.w400, color: Colors.grey),
-          ),
-          widget.isLabelRequired
-              ? const Text(
-                  "*",
-                  style: TextStyle(
-                      color: UIColorConstant.primaryRed, fontSize: 25),
-                )
-              : const SizedBox.shrink()
-        ],
+      labelText = Padding(
+        padding: const EdgeInsets.only(left: 3),
+        child: Row(
+          children: [
+            Text(
+              widget.labelText ?? "",
+              style: GoogleFonts.dmMono().copyWith(fontWeight: FontWeight.w400, color: Colors.grey),
+            ),
+            widget.isLabelRequired
+                ? const Text(
+                    "*",
+                    style: TextStyle(
+                        color: UIColorConstant.primaryRed, fontSize: 25),
+                  )
+                : const SizedBox.shrink()
+          ],
+        ),
       );
     }
 

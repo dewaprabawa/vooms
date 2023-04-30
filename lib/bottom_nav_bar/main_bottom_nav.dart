@@ -7,6 +7,8 @@ import 'package:vooms/chat/pages/chat_conversation_page.dart';
 import 'package:vooms/dependency.dart';
 import 'package:vooms/profile/pages/cubit/profile_cubit.dart';
 import 'package:vooms/profile/pages/profile_page.dart';
+import 'package:vooms/shareds/general_helper/ui_asset_constant.dart';
+import 'package:vooms/shareds/general_helper/ui_color_constants.dart';
 
 class MainBottomNav extends StatefulWidget {
   const MainBottomNav({super.key});
@@ -20,10 +22,10 @@ class _MainBottomNavState extends State<MainBottomNav> {
 
   final List<BottomNavigationBarItem> items = const [
     BottomNavigationBarItem(
-        icon: Icon(Icons.local_activity), label: "Aktivitas"),
+        icon: ImageIcon(AssetImage(UIAssetConstants.classRoom)), label: "Activity"),
          BottomNavigationBarItem(
-        icon: Icon(Icons.chat), label: "Chat"),
-    BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
+        icon: ImageIcon(AssetImage(UIAssetConstants.classChat)), label: "Chat"),
+    BottomNavigationBarItem(icon: ImageIcon(AssetImage(UIAssetConstants.classProgress)), label: "Profile"),
   ];
 
   final pages = const [TutorListPage(), ChatConversationPage() ,ProfilePage()];

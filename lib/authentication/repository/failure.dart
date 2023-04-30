@@ -95,9 +95,10 @@ class SignInWithEmailAndPasswordException implements Exception {
 
 class SignOutException implements Exception {}
 
-class UserStoreException implements Exception {}
+class UserDataException implements Exception {}
 
-class TutorStoreException implements Exception {}
+class TutorDataException implements Exception {}
+class CourseDataException implements Exception {}
 
 class LogInWithGoogleException implements Exception {
   /// {@macro log_in_with_google_failure}

@@ -49,6 +49,7 @@ extension Mapper on User {
       return UserEntity(
         map["fullname"] ?? "", 
         map["phone"] ?? "",
+        map["address"] ?? "", 
         uid: map["id"] ?? "",
         email: map["email"] ?? "",
         photoUrl: map["photoUrl"] ?? "",

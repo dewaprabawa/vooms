@@ -1,11 +1,10 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:vooms/activity/repository/tutor_entity.dart';
-import 'package:vooms/app.dart';
 import 'package:vooms/chat/pages/chat_room_page.dart';
 import 'package:vooms/shareds/components/color_rundom.dart';
+import 'package:vooms/shareds/components/m_cached_image.dart';
 import 'package:vooms/shareds/general_helper/ui_color_constants.dart';
 
 class TutorDetailPage extends StatelessWidget {
@@ -16,8 +15,14 @@ class TutorDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: UIColorConstant.accentGrey2,
+        centerTitle: false,
+        backgroundColor: UIColorConstant.nativeWhite,
         elevation: 0.0,
+        title: Text(
+          entity.fullname,
+          style: GoogleFonts.dmMono(
+              fontWeight: FontWeight.w500, color: UIColorConstant.nativeBlack),
+        ),
       ),
       bottomNavigationBar: Container(
           decoration: BoxDecoration(
@@ -35,14 +40,15 @@ class TutorDetailPage extends StatelessWidget {
               IconButton(
                   onPressed: () {
                     var route = CupertinoPageRoute(
-                        builder: (context) =>
-                            ChatRoomPage(recepientEntity: entity,));
+                        builder: (context) => ChatRoomPage(
+                              recepientEntity: entity,
+                            ));
                     Navigator.push(context, route);
                   },
                   icon: const Icon(
                     Icons.chat_bubble,
                     color: UIColorConstant.softOrange,
-                  ))
+                  )),
             ],
           )),
       body: SafeArea(
@@ -52,9 +58,15 @@ class TutorDetailPage extends StatelessWidget {
           children: [
             _TutorDetail(
               imageUrl: entity.photoUrl,
-              location: 'Somewhere in the city',
+              location: entity.address,
               name: entity.fullname,
               rating: entity.tutorDetails.popularity.rating.toString(),
+              courseList: entity.tutorDetails.courseList,
+            ),
+            const Divider(
+              height: 1,
+            ),
+            _TutorSkill(
               courseList: entity.tutorDetails.courseList,
             ),
             const Divider(
@@ -63,6 +75,9 @@ class TutorDetailPage extends StatelessWidget {
             _TutorOverview(overview: entity.tutorDetails.teacherOverview),
             const Divider(
               height: 1,
+            ),
+            _CourseDetail(
+              tutorDetails: entity.tutorDetails,
             ),
           ],
         ),
@@ -92,21 +107,13 @@ class _TutorDetail extends StatelessWidget {
       padding: const EdgeInsets.all(8.0),
       child: Row(
         children: [
-          CachedNetworkImage(
-            imageUrl: imageUrl,
-            imageBuilder: (context, imageProvider) => Container(
-              height: 80,
-              width: 80,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(50),
-                image: DecorationImage(
-                  image: imageProvider,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            placeholder: (context, url) => const Icon(Icons.image),
-            errorWidget: (context, url, error) => const Icon(Icons.error),
+          McachedImage(
+            url: imageUrl,
+            height: 80,
+            width: 80,
+          ),
+          const SizedBox(
+            width: 20,
           ),
           Expanded(
             child: Column(
@@ -114,12 +121,6 @@ class _TutorDetail extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Text(
-                      name,
-                      style: GoogleFonts.dmMono(
-                          fontWeight: FontWeight.w500,
-                          color: UIColorConstant.nativeGrey),
-                    ),
                     const Icon(
                       Icons.star_rounded,
                       color: UIColorConstant.softOrange,
@@ -130,21 +131,19 @@ class _TutorDetail extends StatelessWidget {
                     ),
                   ],
                 ),
-                Text(location),
-                Wrap(
-                  children: List.generate(
-                      courseList.length,
-                      (index) => Container(
-                            height: 30,
-                            margin: const EdgeInsets.only(left: 2, bottom: 2),
-                            padding: const EdgeInsets.all(5),
-                            decoration: BoxDecoration(
-                                color: ColorExtension.random(),
-                                borderRadius: BorderRadius.circular(8)),
-                            child: Text(courseList[index],
-                                style: GoogleFonts.dmMono(
-                                    color: UIColorConstant.nativeWhite)),
-                          )),
+                const SizedBox(
+                  height: 5,
+                ),
+                Text(
+                  location,
+                  style: GoogleFonts.dmMono(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                    color: UIColorConstant.nativeGrey,
+                  ),
+                ),
+                const SizedBox(
+                  height: 5,
                 ),
               ],
             ),
@@ -169,10 +168,69 @@ class _TutorOverview extends StatelessWidget {
           Text(
             "Overview",
             style: GoogleFonts.dmMono(
-                fontWeight: FontWeight.w500, color: UIColorConstant.nativeGrey),
+                fontWeight: FontWeight.w500,
+                color: UIColorConstant.nativeBlack),
+          ),
+          const SizedBox(
+            height: 5,
           ),
           Text(overview,
-              style: GoogleFonts.dmMono(color: UIColorConstant.nativeBlack)),
+              style: GoogleFonts.dmMono(color: UIColorConstant.nativeGrey)),
+        ],
+      ),
+    );
+  }
+}
+
+class _TutorSkill extends StatelessWidget {
+  final List<String> courseList;
+  const _TutorSkill({super.key, required this.courseList});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Skill",
+            style: GoogleFonts.dmMono(
+                fontWeight: FontWeight.w500,
+                color: UIColorConstant.nativeBlack),
+          ),
+          const SizedBox(
+            height: 5,
+          ),
+          Row(
+            children: List.generate(courseList.length, (index) {
+              final color = ColorExtension.random();
+              return Row(
+                children: [
+                  Icon(
+                    Icons.circle,
+                    size: 10,
+                    color: color,
+                  ),
+                  Container(
+                    margin: const EdgeInsets.all(2),
+                    padding: const EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(4),
+                      color: color,
+                    ),
+                    child: Text(
+                      courseList[index],
+                      style: GoogleFonts.dmMono(
+                          fontSize: 13,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500),
+                    ),
+                  )
+                ],
+              );
+            }),
+          ),
         ],
       ),
     );
@@ -180,12 +238,53 @@ class _TutorOverview extends StatelessWidget {
 }
 
 class _CourseDetail extends StatelessWidget {
-  const _CourseDetail({super.key});
+  final TutorDetails tutorDetails;
+  const _CourseDetail({super.key, required this.tutorDetails});
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Row(children: []),
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+        Text(
+              "Courses",
+              style: GoogleFonts.dmMono(
+                  fontWeight: FontWeight.w500,
+                  color: UIColorConstant.nativeBlack),
+            ),
+            const SizedBox(
+              height: 5,
+            ),
+        SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+            children:
+                List.generate(tutorDetails.courseDetailList.length, (index) {
+          return Card(
+            child: Column(children: [
+              McachedImage(url: tutorDetails.courseDetailList[index].imageUrl,
+              radius: 0,
+              height: 100,
+              width: 200,
+              ),
+              Text(tutorDetails.courseDetailList[index].subjectName, style: GoogleFonts.dmMono(color: UIColorConstant.nativeBlack,)),
+            ],),
+          );
+        })),
+      )
+      ],),
     );
+  }
+}
+
+
+class _ReviewsDetail extends StatelessWidget {
+  const _ReviewsDetail({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container();
   }
 }

@@ -69,7 +69,6 @@ class _SignInPageState extends State<SignInPage> {
         if (state.status.isSubmissionFailure) {
           AppDialog.snackBarModal(context, message: state.errorMessage);
         }
-        if (state.isRememberMe) {}
       },
       builder: (context, state) {
         return OnWillBlokPop(

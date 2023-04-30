@@ -27,7 +27,7 @@ class UserDataRemoteImpl implements UserDBRemoteService {
     try {
       await _collectionReference.doc(id).delete();
     } catch (_) {
-      throw UserStoreException();
+      throw UserDataException();
     }
   }
 
@@ -43,7 +43,7 @@ class UserDataRemoteImpl implements UserDBRemoteService {
       await _collectionReference.doc(map["id"]).set(map);
     } catch (e) {
       debugPrint(e.toString() + "==USER==");
-      throw UserStoreException();
+      throw UserDataException();
     }
   }
 
@@ -52,7 +52,7 @@ class UserDataRemoteImpl implements UserDBRemoteService {
     try {
       await _collectionReference.doc(map["id"]).update(map);
     } catch (_) {
-      throw UserStoreException();
+      throw UserDataException();
     }
   }
    
@@ -64,7 +64,7 @@ class UserDataRemoteImpl implements UserDBRemoteService {
       final data = querySnapshot.data() as Map<String, dynamic>;
       return data;
     } catch (_) {
-      throw UserStoreException();
+      throw UserDataException();
     }
   }
 }
@@ -84,7 +84,7 @@ mixin CheckMethod {
       return snapshot.docs.isNotEmpty;
     } catch (e) {
       debugPrint(e.toString());
-      throw UserStoreException();
+      throw UserDataException();
     }
   }
 }

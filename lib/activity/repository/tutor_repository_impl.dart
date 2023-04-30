@@ -19,10 +19,12 @@ class TutorRepositoryImpl implements TutorRepository {
       final tutorEntities =
           tutorMaps.map((map) => TutorEntity.fromJson(map)).toList();
       return Right(tutorEntities);
-    } on TutorStoreException catch (e) {
+    } on TutorDataException catch (e) {
       return Left(TutorDataError(errorMessage: e.toString()));
-    }  catch (e){
-       return Left(TutorDataError(errorMessage: e.toString()));
+    } catch (e){
+      return Left(TutorDataError(errorMessage: e.toString()));
     }
   }
+  
+ 
 }

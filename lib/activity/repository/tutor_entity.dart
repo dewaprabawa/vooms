@@ -6,6 +6,7 @@ class TutorEntity {
   String photoUrl;
   Role role;
   String displayName;
+  String address;
   TutorDetails tutorDetails;
 
   TutorEntity({
@@ -17,10 +18,12 @@ class TutorEntity {
     required this.role,
     required this.displayName,
     required this.tutorDetails,
+    required this.address,
   });
 
   factory TutorEntity.fromJson(Map<String, dynamic> json) {
     return TutorEntity(
+      address: json["address"] as String,
       id: json['id'] as String,
       email: json['email'] as String,
       fullname: json['fullname'] as String,
@@ -113,12 +116,12 @@ class CourseDetail {
 
   factory CourseDetail.fromJson(Map<String, dynamic> json) {
     return CourseDetail(
-      coursePrice: json['coursePrice'] == null ? 0 : json['coursePrice'] as int,
-      imageUrl: json['imageUrl'] == null ? "" : json['imageUrl'] as String,
+      coursePrice: json['course_price'] == null ? 0 : json['course_price'] as int,
+      imageUrl: json['image_url'] == null ? "" : json['image_url'] as String,
       overview: json["overview"] == null ? "" : json['overview'] as String,
-      subjectId: json["subjectId"] == null ? "" : json['subjectId'] as String,
+      subjectId: json["subject_id"] == null ? "" : json['subject_id'] as String,
       subjectName:
-          json["subjectName"] == null ? "" : json['subjectName'] as String,
+          json["subject_name"] == null ? "" : json['subject_name'] as String,
     );
   }
 }

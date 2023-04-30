@@ -58,7 +58,7 @@ class AuthRepositoryImpl with CheckMethod implements AuthRepository {
     try {
       final model = await _authService.signUpUser(email,
           password); // Call the signUpUser function of AuthService to register the user.
-      _saveCredentialUser(model, fullname, phone);
+      _saveCredentialUser(model, fullname, phone, null);
       debugPrint("==signUpUser==");
       return right(unit); // Return a success message.
     } on SignUpWithEmailAndPasswordException catch (e) {
@@ -66,7 +66,7 @@ class AuthRepositoryImpl with CheckMethod implements AuthRepository {
       return left(AuthenticationError(
           errorMessage: e
               .message)); // Return an error message using the custom Failure class.
-    } on UserStoreException catch (e) {
+    } on UserDataException catch (e) {
       debugPrint(e.toString()); // Print the error message to the console.
       return left(AuthenticationError(
           errorMessage: e
@@ -83,7 +83,7 @@ class AuthRepositoryImpl with CheckMethod implements AuthRepository {
       return right(unit);
     } on SignInWithEmailAndPasswordException catch (e) {
       return left(AuthenticationError(errorMessage: e.message));
-    } on UserStoreException catch (e) {
+    } on UserDataException catch (e) {
       return left(AuthenticationError(errorMessage: e.toString()));
     }
   }
@@ -116,12 +116,12 @@ class AuthRepositoryImpl with CheckMethod implements AuthRepository {
       }
 
       // Save the user's credentials to Firestore
-      _saveCredentialUser(model, null, null);
+      _saveCredentialUser(model, null, null, null);
       debugPrint("==googleSignIn==");
       return right(unit);
     } on LogInWithGoogleException catch (e) {
       return left(AuthenticationError(errorMessage: e.message));
-    } on UserStoreException catch (e) {
+    } on UserDataException catch (e) {
       return left(AuthenticationError(errorMessage: e.toString()));
     }
   }
@@ -147,6 +147,8 @@ class AuthRepositoryImpl with CheckMethod implements AuthRepository {
     await prefs.setBool('rememberMe', rememberMe);
   }
 
+
+  @override
   Future<Map<String, dynamic>> getUserCredentials() async {
     final prefs = await SharedPreferences.getInstance();
 
@@ -157,19 +159,23 @@ class AuthRepositoryImpl with CheckMethod implements AuthRepository {
     return {'email': email, 'password': password, 'rememberMe': rememberMe};
   }
 
-  void _saveCredentialUser(UserModel? model, String? fullname, String? phone) {
+  void _saveCredentialUser(UserModel? model, String? fullname, String? phone, String? address) {
     if (model != null) {
       // Save the user details to the database if the user registration was successful.
       Future.wait([
         _authStoreRemote.save(UserEntity(
-                fullname ?? model.displayName, phone ?? "",
+                fullname ?? model.displayName,
+                 phone ?? "", 
+                 address ?? "",
                 uid: model.uid,
                 email: model.email,
                 photoUrl: model.photoUrl,
                 displayName: model.displayName)
             .toMap()),
         _authStoreLocal.save(UserEntity(
-                fullname ?? model.displayName, phone ?? "",
+                fullname ?? model.displayName, 
+                phone ?? "", 
+                 address ?? "",
                 uid: model.uid,
                 email: model.email,
                 photoUrl: model.photoUrl,

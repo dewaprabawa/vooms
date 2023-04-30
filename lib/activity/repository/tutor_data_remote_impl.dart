@@ -1,14 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:vooms/authentication/repository/auth_service.dart';
 import 'package:vooms/authentication/repository/failure.dart';
+import 'package:vooms/shareds/components/base_method.dart';
 import 'package:vooms/shareds/general_helper/firebase_key_constant.dart';
 
-abstract class TutorDBservice {
-  Future<void> save(Map<String,dynamic> map);
-  Future<void> update(Map<String,dynamic> map);
-  Future<void> delete(String id);
-  Future<List<Map<String,dynamic>>> retrieveList();
-  Future<Map<String,dynamic>> retrieve(String id);
+abstract class TutorDBservice implements BaseMethod {
+  
 }
 
 
@@ -61,7 +58,7 @@ class TutorDataRemoteImpl implements TutorDBservice {
 
       return usersList;
     } catch (e) {
-      throw TutorStoreException();
+      throw TutorDataException();
     }
   }
 
