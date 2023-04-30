@@ -14,6 +14,7 @@ class TutorDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        backgroundColor: UIColorConstant.backgroundColorGrey,
       appBar: AppBar(
         centerTitle: false,
         backgroundColor: UIColorConstant.nativeWhite,

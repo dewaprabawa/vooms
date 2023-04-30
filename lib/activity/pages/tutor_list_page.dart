@@ -29,7 +29,7 @@ class _TutorListPageState extends State<TutorListPage> {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
-      backgroundColor: Color.fromARGB(211, 238, 238, 238),
+      backgroundColor: UIColorConstant.backgroundColorGrey,
       body: Column(
         children: [
           BlocBuilder<ProfileCubit, ProfileState>(
@@ -39,7 +39,9 @@ class _TutorListPageState extends State<TutorListPage> {
               Widget userEmail = const SizedBox();
               var userEntity = state.entity;
               if (userEntity != null) {
-                userAvatar = McachedImage(url: userEntity.photoUrl);
+                userAvatar = McachedImage(
+                  border: Border.all(color:UIColorConstant.accentGrey1),
+                  url: userEntity.photoUrl);
                 userName = Text(userEntity.fullname,
                     style: GoogleFonts.dmMono(
                         fontWeight: FontWeight.w500, fontSize: 18));
@@ -50,10 +52,13 @@ class _TutorListPageState extends State<TutorListPage> {
                         color: UIColorConstant.nativeGrey));
               }
               return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 child: Row(children: [
                   userAvatar,
-                  const SizedBox(width: 10,),
+                  const SizedBox(
+                    width: 10,
+                  ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -66,34 +71,41 @@ class _TutorListPageState extends State<TutorListPage> {
                     height: 40,
                     width: 40,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(50),
-                      color: UIColorConstant.nativeWhite
-                    ),
-                    child: IconButton(onPressed: (){
-                  
-                    }, icon: const Icon(Icons.notifications)),
+                      border: Border.all(color: UIColorConstant.accentGrey1),
+                        borderRadius: BorderRadius.circular(50),
+                        color: UIColorConstant.nativeWhite),
+                    child: IconButton(
+                        onPressed: () {},
+                        icon: const Icon(Icons.notifications)),
                   )
                 ]),
               );
             },
           ),
-          Padding(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 3),
-          child: Row(children: [
-           Flexible(
-             child: MtextField(
-              borderColor: UIColorConstant.primaryBlack,
-              borderWidth: 2,
-              enabled: false,
-              labelText: "Search course or tutor here.",
-              hintText: "ex: programming",
-              leadingChild: const Padding(
-                padding:  EdgeInsets.only(left: 10),
-                child:  Icon(Icons.search, color: UIColorConstant.nativeBlack,),
-              ),
-              margin: const EdgeInsets.symmetric(horizontal: 5),
-              controller: TextEditingController()),
-           ),
-          ],),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 3),
+            child: Row(
+              children: [
+                Flexible(
+                  child: MtextField(
+                      color: UIColorConstant.nativeWhite,
+                      borderColor: UIColorConstant.accentGrey1,
+                      borderWidth: 1,
+                      enabled: false,
+                      labelText: "Search course or tutor here.",
+                      hintText: "ex: programming",
+                      leadingChild: const Padding(
+                        padding: EdgeInsets.only(left: 10),
+                        child: Icon(
+                          Icons.search,
+                          color: UIColorConstant.nativeBlack,
+                        ),
+                      ),
+                      margin: const EdgeInsets.symmetric(horizontal: 3),
+                      controller: TextEditingController()),
+                ),
+              ],
+            ),
           ),
           Flexible(
             child:
@@ -158,9 +170,8 @@ class _TutorListView extends StatelessWidget {
 }
 
 class _TutorCardTile extends StatelessWidget {
-  const _TutorCardTile({super.key, required this.entity});
+   _TutorCardTile({super.key, required this.entity});
   final TutorEntity entity;
-
 
   Widget _setDetailTutor() {
     return Flexible(
@@ -194,87 +205,104 @@ class _TutorCardTile extends StatelessWidget {
               Text(entity.fullname,
                   style: GoogleFonts.dmMono(
                       fontWeight: FontWeight.w500, fontSize: 18)),
-              const Spacer(),        
+              const Spacer(),
               const Icon(
                 Icons.star_rounded,
                 color: UIColorConstant.softOrange,
               ),
-              const SizedBox(width: 8,),
+              const SizedBox(
+                width: 8,
+              ),
               Text(
                 "${entity.tutorDetails.popularity.rating}",
                 style: GoogleFonts.dmMono(
                     fontWeight: FontWeight.w600,
-                    color: UIColorConstant.nativeGrey, fontSize: 14),
+                    color: UIColorConstant.nativeGrey,
+                    fontSize: 14),
               ),
             ],
           ),
-          const SizedBox(height: 8,), 
+          const SizedBox(
+            height: 8,
+          ),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-            const Icon(Icons.location_on, size: 18,),
-            const SizedBox(width: 5,),
-            Flexible(
-              child: Text(entity.address,
+              const Icon(
+                Icons.location_on,
+                size: 18,
+              ),
+              const SizedBox(
+                width: 5,
+              ),
+              Flexible(
+                child: Text(entity.address,
+                    style: GoogleFonts.dmMono(
+                        fontWeight: FontWeight.w100,
+                        color: UIColorConstant.nativeGrey,
+                        fontSize: 14)),
+              ),
+            ],
+          ),
+          const SizedBox(
+            height: 8,
+          ),
+          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text("Subjects:",
                 style: GoogleFonts.dmMono(
-                    fontWeight: FontWeight.w100,
-                    color: UIColorConstant.nativeGrey,
+                    fontWeight: FontWeight.bold,
+                    color: UIColorConstant.nativeBlack,
                     fontSize: 14)),
+            const SizedBox(
+              height: 5,
             ),
-          ],),
-          const SizedBox(height: 8,),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-           children: [
-          Text("Subjects:",
-              style: GoogleFonts.dmMono(
-                  fontWeight: FontWeight.bold,
-                  color: UIColorConstant.nativeBlack,
-                  fontSize: 14)),   
-           const  SizedBox(height: 5,),   
-          Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: List.generate(
-                  entity.tutorDetails.courseList.length,
-                  (index){
-                    final color = ColorExtension.random();
-                    return Row(
-                        children: [
-                          Icon(
-                            Icons.circle,
-                            size: 10,
-                            color: color,
-                          ),
-                          Container(
-                            margin: const EdgeInsets.all(2),
-                            padding: const EdgeInsets.all(2),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(4),
-                              color: color,
-                            ),
-                            child: Text(
-                              entity.tutorDetails.courseList[index],
-                              style: GoogleFonts.dmMono(
-                                  fontSize: 13, color: Colors.white, fontWeight: FontWeight.w500),
-                            ),
-                          )
-                        ],
-                      );
-                  }))
+            Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: List.generate(entity.tutorDetails.courseList.length,
+                    (index) {
+                  final color = ColorExtension.random();
+                  return Row(
+                    children: [
+                      Icon(
+                        Icons.circle,
+                        size: 10,
+                        color: color,
+                      ),
+                      Container(
+                        margin: const EdgeInsets.all(2),
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color: color,
+                        ),
+                        child: Text(
+                          entity.tutorDetails.courseList[index],
+                          style: GoogleFonts.dmMono(
+                              fontSize: 13,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w500),
+                        ),
+                      )
+                    ],
+                  );
+                }))
           ]),
         ],
       ),
     );
   }
 
+  final _setDecoration = BoxDecoration(
+      border: Border.all(color: UIColorConstant.accentGrey1),
+      borderRadius: BorderRadius.circular(10),
+      color: Colors.white);
+
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.fromLTRB(25, 15, 25, 5),
       padding: const EdgeInsets.only(top: 10, bottom: 10, right: 10),
-      decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(10),
-      color: Colors.white),
+      decoration: _setDecoration,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

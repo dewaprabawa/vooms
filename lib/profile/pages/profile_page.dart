@@ -74,21 +74,56 @@ class _ProfilePageState extends State<ProfilePage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Tentang saya',
-                        style: TextStyle(
-                          fontSize: 20,
+                        Text(
+                        'Email',
+                        style: GoogleFonts.dmMono(
+                          fontSize: 15,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet. Proin gravida dolor sit amet lacus accumsan et viverra justo commodo.',
+                        '${context.read<ProfileCubit>().state.entity?.email}',
                         style: GoogleFonts.dmMono(
                           fontSize: 16,
                           color: Colors.grey.withOpacity(0.8),
                         ),
                       ),
+                      const Divider(height: 1,),
+                      const SizedBox(height: 15,),
+                       Text(
+                        'Phone',
+                        style: GoogleFonts.dmMono(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        '+62${context.read<ProfileCubit>().state.entity?.phone}',
+                        style: GoogleFonts.dmMono(
+                          fontSize: 16,
+                          color: Colors.grey.withOpacity(0.8),
+                        ),
+                      ),
+                      const Divider(height: 1,),
+                      const SizedBox(height: 15,),
+                       Text(
+                        'Address',
+                        style: GoogleFonts.dmMono(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        '${context.read<ProfileCubit>().state.entity?.address}',
+                        style: GoogleFonts.dmMono(
+                          fontSize: 16,
+                          color: Colors.grey.withOpacity(0.8),
+                        ),
+                      ),
+                      const Divider(height: 1,),
                     ],
                   ),
                 ),
@@ -97,7 +132,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   onPressed: () async {
                     await context.read<AppStateCubit>().signOut();
                   },
-                  child: Text("SignOut", style: GoogleFonts.dmMono()))
+                  child: Text("Sign out", style: GoogleFonts.dmMono()))
             ],
           ),
         ),
@@ -127,59 +162,55 @@ class _LoadingShimmer extends StatelessWidget {
       baseColor: Colors.grey[300]!,
       highlightColor: Colors.grey[100]!,
       child: Container(
-        width: double.infinity,
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.bottomRight,
-              colors: [
-                Colors.black.withOpacity(0.9),
-                Colors.black.withOpacity(0.3),
-              ],
-            ),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              const SizedBox(
-                height: 10,
-              ),
-              CircleAvatar(
-                radius: 50,
-                child: Container(),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                '',
-                style: GoogleFonts.dmMono(
-                  color: Colors.white,
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 5),
-              Text(
-                '',
-                style: GoogleFonts.dmMono(
-                  color: Colors.white.withOpacity(0.7),
-                  fontSize: 18,
-                ),
-              ),
-              const SizedBox(height: 5),
-              Text(
-                '',
-                style: GoogleFonts.dmMono(
-                  color: Colors.white.withOpacity(0.7),
-                  fontSize: 18,
-                ),
-              ),
-              const SizedBox(height: 20),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.bottomRight,
+            colors: [
+              Colors.black.withOpacity(0.9),
+              Colors.black.withOpacity(0.3),
             ],
           ),
         ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            const SizedBox(
+              height: 10,
+            ),
+            CircleAvatar(
+              radius: 50,
+              child: Container(),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              '',
+              style: GoogleFonts.dmMono(
+                color: Colors.white,
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 5),
+            Text(
+              '',
+              style: GoogleFonts.dmMono(
+                color: Colors.white.withOpacity(0.7),
+                fontSize: 18,
+              ),
+            ),
+            const SizedBox(height: 5),
+            Text(
+              '',
+              style: GoogleFonts.dmMono(
+                color: Colors.white.withOpacity(0.7),
+                fontSize: 18,
+              ),
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
       ),
     );
-    ;
   }
 }
 
@@ -211,43 +242,39 @@ class _BuildDetailHeader extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             const SizedBox(
-              height: 10,
+              height: 20,
             ),
-            ImagePickerButton(
+            Stack(children: [
+               ImagePickerButton(
               onImageSelected: (File file) async {
                 await context
                     .read<ProfileCubit>()
                     .updateImage(file)
-                    .whenComplete(() {});
+                    .whenComplete((){});
               },
               child: CircleAvatar(
                 radius: 50,
                 backgroundImage: NetworkImage(entity.photoUrl),
               ),
             ),
+             Positioned(
+              top: 50,
+               left: 60,
+               child: IconButton(
+                
+                color: UIColorConstant.primaryGreen,
+                onPressed: (){
+             
+                 }, icon: const Icon(Icons.edit_square, size: 20,)),
+             ),
+            ],),
             const SizedBox(height: 10),
             Text(
               entity.fullname,
               style: GoogleFonts.dmMono(
                 color: Colors.white,
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 5),
-            Text(
-              entity.email,
-              style: GoogleFonts.dmMono(
-                color: Colors.white.withOpacity(0.7),
                 fontSize: 18,
-              ),
-            ),
-            const SizedBox(height: 5),
-            Text(
-              entity.phone,
-              style: GoogleFonts.dmMono(
-                color: Colors.white.withOpacity(0.7),
-                fontSize: 18,
+                fontWeight: FontWeight.w400,
               ),
             ),
             const SizedBox(height: 20),

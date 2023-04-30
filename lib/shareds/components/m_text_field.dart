@@ -29,6 +29,7 @@ class MtextField extends StatefulWidget {
     this.expands = false,
     this.trailingChild = const SizedBox.shrink(),
     this.leadingChild = const SizedBox.shrink(),
+    this.color = UIColorConstant.nativeWhite,
   }) : super(key: key);
   final bool isShakeErrorAnimationActive;
   final bool isSecurity;
@@ -51,6 +52,7 @@ class MtextField extends StatefulWidget {
   final Widget leadingChild;
   final bool expands;
   final void Function(String)? onChanged;
+  final Color color;
 
   @override
   State<MtextField> createState() => _MtextFieldState();
@@ -87,11 +89,12 @@ class _MtextFieldState extends State<MtextField>
           errorBorder: InputBorder.none),
     );
 
-    // focus_node
+    //focus_node
     Widget focusNode = Focus(
       onFocusChange: _onFocusChanged,
       child: Container(
         decoration: BoxDecoration(
+            color: widget.color,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
                 color: _setBorderColor(), 
