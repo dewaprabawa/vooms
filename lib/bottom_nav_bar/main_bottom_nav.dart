@@ -25,17 +25,17 @@ class _MainBottomNavState extends State<MainBottomNav> {
         icon: ImageIcon(AssetImage(UIAssetConstants.classRoom)), label: "Activity"),
          BottomNavigationBarItem(
         icon: ImageIcon(AssetImage(UIAssetConstants.classChat)), label: "Chat"),
-    BottomNavigationBarItem(icon: ImageIcon(AssetImage(UIAssetConstants.classProgress)), label: "Profile"),
+    BottomNavigationBarItem(icon: ImageIcon(AssetImage(UIAssetConstants.classProgress)), label: "Progress"),
   ];
 
-  final pages = const [TutorListPage(), ChatConversationPage() ,ProfilePage()];
+  final pages =  [const TutorListPage(),const ChatConversationPage(), Container()];
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (context) => sl<ProfileCubit>()),
-        BlocProvider(create: (context) => sl<TutorCubit>()),
+         BlocProvider(create: (context) => sl<ProfileCubit>()),
+         BlocProvider(create: (context) => sl<TutorCubit>()),
       ],
       child: Scaffold(
         bottomNavigationBar: BottomNavigationBar(

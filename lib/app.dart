@@ -17,6 +17,54 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final lightTheme = ThemeData(
+            bottomNavigationBarTheme: BottomNavigationBarThemeData(
+              backgroundColor: UIColorConstant.nativeWhite,
+              elevation: 0.5,
+              selectedLabelStyle: GoogleFonts.dmMono(fontWeight: FontWeight.bold),
+              unselectedLabelStyle: GoogleFonts.dmMono(fontWeight: FontWeight.w400),
+              selectedItemColor: UIColorConstant.materialPrimaryRed,
+              selectedIconTheme: IconThemeData(color: UIColorConstant.materialPrimaryRed),
+            ),
+            textTheme: TextTheme(
+              displayMedium:  GoogleFonts.dmMono(fontWeight: FontWeight.w500),
+              displayLarge: GoogleFonts.dmMono(fontWeight: FontWeight.bold),
+              displaySmall:  GoogleFonts.dmMono(fontWeight: FontWeight.w100),
+              ),
+            iconTheme: IconThemeData(color: UIColorConstant.materialPrimaryRed),
+            appBarTheme: const AppBarTheme(color: UIColorConstant.nativeWhite),
+            scaffoldBackgroundColor: UIColorConstant.backgroundColorGrey,
+            primarySwatch: UIColorConstant.materialPrimaryBlue,
+            hintColor: UIColorConstant.nativeGrey,
+            dividerColor: UIColorConstant.accentGrey1,
+            accentColor: UIColorConstant.primaryRed,
+            primaryColor: UIColorConstant.primaryBlue,
+            backgroundColor: UIColorConstant.nativeWhite,
+            fontFamily: "dmMono");
+            
+     final darkTheme =  ThemeData(
+            bottomNavigationBarTheme: BottomNavigationBarThemeData(
+              backgroundColor: UIColorConstant.nativeWhite,
+              elevation: 0.5,
+              selectedLabelStyle: GoogleFonts.dmMono(fontWeight: FontWeight.bold),
+              unselectedLabelStyle: GoogleFonts.dmMono(fontWeight: FontWeight.w400),
+              selectedItemColor: UIColorConstant.materialPrimaryRed,
+              selectedIconTheme: IconThemeData(color: UIColorConstant.materialPrimaryRed),
+            ),
+            textTheme: TextTheme(
+              displayMedium:  GoogleFonts.dmMono(fontWeight: FontWeight.w500),
+              displayLarge: GoogleFonts.dmMono(fontWeight: FontWeight.bold),
+              displaySmall:  GoogleFonts.dmMono(fontWeight: FontWeight.w100),
+              ),
+            iconTheme: IconThemeData(color: UIColorConstant.materialPrimaryRed),
+            appBarTheme: const AppBarTheme(color: UIColorConstant.nativeWhite),
+            scaffoldBackgroundColor: UIColorConstant.backgroundColorGrey,
+            primarySwatch: UIColorConstant.materialPrimaryBlue,
+            hintColor: UIColorConstant.accentGrey1,
+            accentColor: UIColorConstant.primaryRed,
+            primaryColor: UIColorConstant.primaryBlue,
+            backgroundColor: UIColorConstant.nativeWhite,
+            fontFamily: "dmMono");      
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (context) => sl<SignInCubit>()),
@@ -25,11 +73,7 @@ class App extends StatelessWidget {
       ],
       child: MaterialApp(
         title: 'Vooms',
-        theme: ThemeData(
-            primarySwatch: UIColorConstant.materialPrimaryBlue,
-            hintColor: UIColorConstant.accentGrey1,
-            errorColor: UIColorConstant.primaryRed,
-            fontFamily: GoogleFonts.dmMono().toString()),
+        theme: lightTheme,
         home: const OnStartUpPage(),
       ),
     );

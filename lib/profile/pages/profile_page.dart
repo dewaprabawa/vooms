@@ -4,15 +4,18 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:vooms/authentication/pages/blocs/app_state_cubit/app_state_cubit.dart';
 import 'package:vooms/authentication/repository/user_entity.dart';
+import 'package:vooms/dependency.dart';
 import 'package:vooms/profile/pages/cubit/profile_cubit.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:vooms/shareds/components/app_dialog.dart';
+import 'package:vooms/shareds/general_helper/text_extension.dart';
 import 'package:vooms/shareds/general_helper/ui_color_constants.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+  final ProfileCubit profileCubit;
+  const ProfilePage({super.key, required this.profileCubit});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -21,8 +24,6 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
-    Future.microtask(
-        () async => await context.read<ProfileCubit>().getProfile());
     super.initState();
   }
 
@@ -38,103 +39,141 @@ class _ProfilePageState extends State<ProfilePage> {
           },
         ),
         BlocListener<ProfileCubit, ProfileState>(
+          bloc: widget.profileCubit,
           listener: (context, state) {
-             if(state.userStateStatus == UserStateStatus.imageUploaded){
-                AppDialog.snackBarModal(context, message: "Profile berhasil diupload.");
-             }else if(state.userStateStatus == UserStateStatus.imageUploaded){
-                AppDialog.snackBarModal(context, message: "Terjadi kesalahan.");
-             } 
+            if (state.userStateStatus == UserStateStatus.imageUploaded) {
+              AppDialog.snackBarModal(context,
+                  message: "Profile berhasil diupload.");
+            } else if (state.userStateStatus == UserStateStatus.imageUploaded) {
+              AppDialog.snackBarModal(context, message: "Terjadi kesalahan.");
+            }
           },
         ),
       ],
-      child: SafeArea(
-        child: Scaffold(
-          body: Column(
-            children: [
-              BlocBuilder<ProfileCubit, ProfileState>(
-                  builder: (context, state) {
-                switch (state.userStateStatus) {
-                  case UserStateStatus.initial:
-                    return const _LoadingShimmer();
-                  case UserStateStatus.loaded:
-                    return _BuildDetailHeader(
-                      entity: state.entity!,
-                    );
-                  case UserStateStatus.failure:
-                    return _ErrorTextMessage(text: state.mesaage);
-                  case UserStateStatus.loading:
-                    return const _LoadingShimmer();
-                  default:
-                    return const _LoadingShimmer();
-                }
-              }),
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(20),
+      child: Scaffold(
+        appBar: AppBar(
+          elevation: 0.0,
+          backgroundColor: UIColorConstant.backgroundColorGrey,
+          title: const Text("Profile").toNormalText(fontSize: 18),
+        ),
+        backgroundColor: UIColorConstant.backgroundColorGrey,
+        body: Column(
+          children: [
+            BlocBuilder<ProfileCubit, ProfileState>(
+                bloc: widget.profileCubit,
+                builder: (context, state) {
+                  switch (state.userStateStatus) {
+                    case UserStateStatus.initial:
+                      return const _LoadingShimmer();
+                    case UserStateStatus.loaded:
+                      return _BuildDetailHeader(
+                        entity: state.entity!,
+                        profileCubit: widget.profileCubit,
+                      );
+                    case UserStateStatus.failure:
+                      return _ErrorTextMessage(text: state.mesaage);
+                    case UserStateStatus.loading:
+                      return const _LoadingShimmer();
+                    default:
+                      return const _LoadingShimmer();
+                  }
+                }),
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                        Text(
-                        'Email',
-                        style: GoogleFonts.dmMono(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
+                       SizedBox(
+                        height: 5,
+                      ),
+                       ListTile(
+                        title: const Text("Profile")
+                            .toBoldText(color: UIColorConstant.nativeBlack),
+                            trailing: Icon(Icons.person_pin_circle_sharp, color: UIColorConstant.nativeBlack,),
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      ListTile(
+                        title: Text('Email').toNormalText(fontSize: 15),
+                        subtitle: Text(
+                          '${widget.profileCubit.state.entity?.email}',
+                        ).toNormalText(color: UIColorConstant.nativeGrey),
+                      ),
+                      const Divider(
+                        height: 1,
+                      ),
+                      ListTile(
+                        title: Text('Phone').toNormalText(fontSize: 15),
+                        subtitle: Text(
+                          '+62${widget.profileCubit.state.entity?.phone}',
+                        ).toNormalText(color: UIColorConstant.nativeGrey),
+                      ),
+                      const Divider(
+                        height: 1,
+                      ),
+                      ListTile(
+                        title: Text('Address').toNormalText(fontSize: 15),
+                        subtitle: Text(
+                          '${widget.profileCubit.state.entity?.address}',
+                        ).toNormalText(color: UIColorConstant.nativeGrey),
+                      ),
+                      const Divider(
+                        height: 1,
+                      ),
+                     const SizedBox(
+                        height: 5,
+                      ),
+                       ListTile(
+                        title: const Text("Settings")
+                            .toBoldText(color: UIColorConstant.nativeBlack),
+                            trailing: Icon(Icons.settings, color: UIColorConstant.nativeBlack,),
+                      ),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                       ListTile(
+                        title: const Text("Theme")
+                            .toNormalText(color: UIColorConstant.nativeBlack),
+                        trailing: Icon(Icons.chevron_right_rounded, color: UIColorConstant.nativeBlack,),
+                      ),
+                      const Divider(
+                        height: 1,
+                      ),
+                      ListTile(
+                        title: const Text("Private Policy")
+                            .toNormalText(color: UIColorConstant.nativeBlack),
+                        trailing: const Icon(
+                          Icons.chevron_right_rounded,
+                          color: UIColorConstant.nativeBlack,
                         ),
                       ),
-                      const SizedBox(height: 10),
-                      Text(
-                        '${context.read<ProfileCubit>().state.entity?.email}',
-                        style: GoogleFonts.dmMono(
-                          fontSize: 16,
-                          color: Colors.grey.withOpacity(0.8),
+                      const Divider(
+                        height: 1,
+                      ),
+                      ListTile(
+                        onTap: () async {
+                          await context.read<AppStateCubit>().signOut();
+                        },
+                        title: const Text("Sign out").toBoldText(
+                            color: UIColorConstant.primaryRed),
+                        trailing: const Icon(
+                          Icons.chevron_right_rounded,
+                          color: UIColorConstant.primaryRed,
                         ),
                       ),
-                      const Divider(height: 1,),
-                      const SizedBox(height: 15,),
-                       Text(
-                        'Phone',
-                        style: GoogleFonts.dmMono(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      const Divider(
+                        height: 1,
                       ),
-                      const SizedBox(height: 10),
-                      Text(
-                        '+62${context.read<ProfileCubit>().state.entity?.phone}',
-                        style: GoogleFonts.dmMono(
-                          fontSize: 16,
-                          color: Colors.grey.withOpacity(0.8),
-                        ),
-                      ),
-                      const Divider(height: 1,),
-                      const SizedBox(height: 15,),
-                       Text(
-                        'Address',
-                        style: GoogleFonts.dmMono(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        '${context.read<ProfileCubit>().state.entity?.address}',
-                        style: GoogleFonts.dmMono(
-                          fontSize: 16,
-                          color: Colors.grey.withOpacity(0.8),
-                        ),
-                      ),
-                      const Divider(height: 1,),
                     ],
                   ),
                 ),
               ),
-              TextButton(
-                  onPressed: () async {
-                    await context.read<AppStateCubit>().signOut();
-                  },
-                  child: Text("Sign out", style: GoogleFonts.dmMono()))
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -215,7 +254,9 @@ class _LoadingShimmer extends StatelessWidget {
 }
 
 class _BuildDetailHeader extends StatelessWidget {
-  const _BuildDetailHeader({super.key, required this.entity});
+  final ProfileCubit profileCubit;
+  const _BuildDetailHeader(
+      {super.key, required this.entity, required this.profileCubit});
   final UserEntity entity;
 
   @override
@@ -244,30 +285,30 @@ class _BuildDetailHeader extends StatelessWidget {
             const SizedBox(
               height: 20,
             ),
-            Stack(children: [
-               ImagePickerButton(
-              onImageSelected: (File file) async {
-                await context
-                    .read<ProfileCubit>()
-                    .updateImage(file)
-                    .whenComplete((){});
-              },
-              child: CircleAvatar(
-                radius: 50,
-                backgroundImage: NetworkImage(entity.photoUrl),
-              ),
+            Stack(
+              children: [
+                ImagePickerButton(
+                  onImageSelected: (File file) async {
+                    await profileCubit.updateImage(file).whenComplete(() {});
+                  },
+                  child: CircleAvatar(
+                    radius: 50,
+                    backgroundImage: NetworkImage(entity.photoUrl),
+                  ),
+                ),
+                Positioned(
+                  top: 50,
+                  left: 60,
+                  child: IconButton(
+                      color: UIColorConstant.primaryGreen,
+                      onPressed: () {},
+                      icon: const Icon(
+                        Icons.edit_square,
+                        size: 20,
+                      )),
+                ),
+              ],
             ),
-             Positioned(
-              top: 50,
-               left: 60,
-               child: IconButton(
-                
-                color: UIColorConstant.primaryGreen,
-                onPressed: (){
-             
-                 }, icon: const Icon(Icons.edit_square, size: 20,)),
-             ),
-            ],),
             const SizedBox(height: 10),
             Text(
               entity.fullname,
@@ -320,10 +361,11 @@ class _ImagePickerButtonState extends State<ImagePickerButton> {
         }
       }
     } catch (e) {
-        if (Navigator.canPop(context)) {
-          Navigator.pop(context);
-        }
-      AppDialog.snackBarModal(context, message: "Terjadi kesalahan membuka galery atau kamera.");
+      if (Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
+      AppDialog.snackBarModal(context,
+          message: "Terjadi kesalahan membuka galery atau kamera.");
     }
   }
 

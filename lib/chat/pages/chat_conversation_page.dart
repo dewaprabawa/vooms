@@ -12,6 +12,7 @@ import 'package:vooms/chat/pages/chat_room_page.dart';
 import 'package:vooms/dependency.dart';
 import 'package:vooms/shareds/components/app_dialog.dart';
 import 'package:vooms/shareds/components/m_cached_image.dart';
+import 'package:vooms/shareds/general_helper/text_extension.dart';
 import 'package:vooms/shareds/general_helper/ui_color_constants.dart';
 
 class ChatConversationPage extends StatefulWidget {
@@ -85,6 +86,11 @@ class _ChatConversationPageState extends State<ChatConversationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        elevation: 0.0,
+        backgroundColor: UIColorConstant.nativeWhite,
+        title: const Text("Chats").toNormalText(fontSize: 18),
+      ),
       body: SafeArea(
           child: (_isLoading)
               ? const CircularProgressIndicator()

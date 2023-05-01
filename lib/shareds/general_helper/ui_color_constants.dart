@@ -34,3 +34,5 @@ class UIColorConstant {
   static const Color nativeBlack = Colors.black;
   static const Color softOrange = Color(0xffFFB322);
 }
+
+

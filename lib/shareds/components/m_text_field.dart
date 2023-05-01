@@ -19,7 +19,7 @@ class MtextField extends StatefulWidget {
     this.labelText,
     this.labelStyle,
     this.borderColor,
-    this.borderRadius = 0.0,
+    this.borderRadius,
     this.textInputAction,
     this.textInputType,
     this.isLabelRequired = false,
@@ -38,7 +38,7 @@ class MtextField extends StatefulWidget {
   final TextInputAction? textInputAction;
   final TextInputType? textInputType;
   final Color? borderColor;
-  final double borderRadius;
+  final double? borderRadius;
   final double borderWidth;
   final String? hintText;
   final TextStyle? hintStyle;
@@ -106,7 +106,7 @@ class _MtextFieldState extends State<MtextField>
       child: Container(
         decoration: BoxDecoration(
             color: widget.color,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(widget.borderRadius ?? 12),
             border: Border.all(
                 color: _setBorderColor(), 
                 width: widget.borderWidth)),
