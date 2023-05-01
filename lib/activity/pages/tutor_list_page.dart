@@ -21,7 +21,7 @@ class TutorListPage extends StatefulWidget {
 class _TutorListPageState extends State<TutorListPage> {
   @override
   void initState() {
-    Future.microtask(() async => await context.read<TutorCubit>().getTutors());
+    context.read<TutorCubit>().getTutors();
     super.initState();
   }
 
@@ -34,79 +34,10 @@ class _TutorListPageState extends State<TutorListPage> {
         children: [
           BlocBuilder<ProfileCubit, ProfileState>(
             builder: (context, state) {
-              Widget userAvatar = const Icon(Icons.person);
-              Widget userName = const SizedBox();
-              Widget userEmail = const SizedBox();
-              var userEntity = state.entity;
-              if (userEntity != null) {
-                userAvatar = McachedImage(
-                  border: Border.all(color:UIColorConstant.accentGrey1),
-                  url: userEntity.photoUrl);
-                userName = Text(userEntity.fullname,
-                    style: GoogleFonts.dmMono(
-                        fontWeight: FontWeight.w500, fontSize: 18));
-                userEmail = Text(userEntity.email,
-                    style: GoogleFonts.dmMono(
-                        fontWeight: FontWeight.w300,
-                        fontSize: 15,
-                        color: UIColorConstant.nativeGrey));
-              }
-              return Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: Row(children: [
-                  userAvatar,
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      userName,
-                      userEmail,
-                    ],
-                  ),
-                  const Spacer(),
-                  Container(
-                    height: 40,
-                    width: 40,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: UIColorConstant.accentGrey1),
-                        borderRadius: BorderRadius.circular(50),
-                        color: UIColorConstant.nativeWhite),
-                    child: IconButton(
-                        onPressed: () {},
-                        icon: const Icon(Icons.notifications)),
-                  )
-                ]),
-              );
+              return _BuildAppBar(state: state);
             },
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 3),
-            child: Row(
-              children: [
-                Flexible(
-                  child: MtextField(
-                      color: UIColorConstant.nativeWhite,
-                      borderColor: UIColorConstant.accentGrey1,
-                      borderWidth: 1,
-                      enabled: false,
-                      labelText: "Search course or tutor here.",
-                      hintText: "ex: programming",
-                      leadingChild: const Padding(
-                        padding: EdgeInsets.only(left: 10),
-                        child: Icon(
-                          Icons.search,
-                          color: UIColorConstant.nativeBlack,
-                        ),
-                      ),
-                      margin: const EdgeInsets.symmetric(horizontal: 3),
-                      controller: TextEditingController()),
-                ),
-              ],
-            ),
-          ),
+          const _BuildSearchBar(),
           Flexible(
             child:
                 BlocBuilder<TutorCubit, TutorState>(builder: (context, state) {
@@ -114,8 +45,27 @@ class _TutorListPageState extends State<TutorListPage> {
                 case TutorStateStatus.initial:
                   return const SizedBox();
                 case TutorStateStatus.loaded:
-                  return _TutorListView(
-                    entities: state.entities,
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      await context.read<TutorCubit>().getTutors();
+                    },
+                    child: ListView.builder(
+                        padding: const EdgeInsets.only(bottom: 20),
+                        itemCount: state.entities.length,
+                        itemBuilder: (context, index) {
+                          final itemTile = _TutorCardTile(
+                            entity: state.entities[index],
+                          );
+                          return GestureDetector(
+                              onTap: () {
+                                var route = CupertinoPageRoute(
+                                    builder: ((context) => TutorDetailPage(
+                                          entity: state.entities[index],
+                                        )));
+                                Navigator.push(context, route);
+                              },
+                              child: itemTile);
+                        }),
                   );
                 case TutorStateStatus.failure:
                   return Center(
@@ -123,7 +73,10 @@ class _TutorListPageState extends State<TutorListPage> {
                         onPressed: () async {
                           await context.read<TutorCubit>().getTutors();
                         },
-                        child: Container()),
+                        child: Text(
+                          "Refresh",
+                          style: GoogleFonts.dmMono(),
+                        )),
                   );
                 case TutorStateStatus.loading:
                   return const Center(
@@ -138,39 +91,8 @@ class _TutorListPageState extends State<TutorListPage> {
   }
 }
 
-class _TutorListView extends StatelessWidget {
-  const _TutorListView({super.key, required this.entities});
-  final List<TutorEntity> entities;
-
-  @override
-  Widget build(BuildContext context) {
-    return RefreshIndicator(
-      onRefresh: () async {
-        await context.read<TutorCubit>().getTutors();
-      },
-      child: ListView.builder(
-          padding: const EdgeInsets.only(bottom: 20),
-          itemCount: entities.length,
-          itemBuilder: (context, index) {
-            final itemTile = _TutorCardTile(
-              entity: entities[index],
-            );
-            return GestureDetector(
-                onTap: () {
-                  var route = CupertinoPageRoute(
-                      builder: ((context) => TutorDetailPage(
-                            entity: entities[index],
-                          )));
-                  Navigator.push(context, route);
-                },
-                child: itemTile);
-          }),
-    );
-  }
-}
-
 class _TutorCardTile extends StatelessWidget {
-   _TutorCardTile({super.key, required this.entity});
+  _TutorCardTile({super.key, required this.entity});
   final TutorEntity entity;
 
   Widget _setDetailTutor() {
@@ -308,6 +230,90 @@ class _TutorCardTile extends StatelessWidget {
         children: [
           _setDetailTutor(),
           _setDetailInformation(),
+        ],
+      ),
+    );
+  }
+}
+
+class _BuildAppBar extends StatelessWidget {
+  final ProfileState state;
+  const _BuildAppBar({super.key, required this.state});
+
+  @override
+  Widget build(BuildContext context) {
+    Widget userAvatar = const Icon(Icons.person);
+    Widget userName = const SizedBox();
+    Widget userEmail = const SizedBox();
+    var entity = state.entity;
+    if (entity != null) {
+      userAvatar = McachedImage(
+          border: Border.all(color: UIColorConstant.accentGrey1),
+          url: entity.photoUrl);
+      userName = Text(entity.fullname,
+          style: GoogleFonts.dmMono(fontWeight: FontWeight.w500, fontSize: 18));
+      userEmail = Text(entity.email,
+          style: GoogleFonts.dmMono(
+              fontWeight: FontWeight.w300,
+              fontSize: 15,
+              color: UIColorConstant.nativeGrey));
+    }
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: Row(children: [
+        userAvatar,
+        const SizedBox(
+          width: 10,
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            userName,
+            userEmail,
+          ],
+        ),
+        const Spacer(),
+        Container(
+          height: 40,
+          width: 40,
+          decoration: BoxDecoration(
+              border: Border.all(color: UIColorConstant.accentGrey1),
+              borderRadius: BorderRadius.circular(50),
+              color: UIColorConstant.nativeWhite),
+          child: IconButton(
+              onPressed: () {}, icon: const Icon(Icons.notifications)),
+        )
+      ]),
+    );
+  }
+}
+
+class _BuildSearchBar extends StatelessWidget {
+  const _BuildSearchBar({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 3),
+      child: Row(
+        children: [
+          Flexible(
+            child: MtextField(
+                color: UIColorConstant.nativeWhite,
+                borderColor: UIColorConstant.accentGrey1,
+                borderWidth: 1,
+                enabled: false,
+                labelText: "Search course or tutor here.",
+                hintText: "ex: programming.",
+                leadingChild: const Padding(
+                  padding: EdgeInsets.only(left: 10),
+                  child: Icon(
+                    Icons.search,
+                    color: UIColorConstant.nativeBlack,
+                  ),
+                ),
+                margin: const EdgeInsets.symmetric(horizontal: 3)),
+          ),
         ],
       ),
     );

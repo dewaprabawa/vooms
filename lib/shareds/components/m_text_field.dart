@@ -8,7 +8,7 @@ import 'package:vooms/shareds/general_helper/ui_color_constants.dart';
 class MtextField extends StatefulWidget {
   const MtextField({
     Key? key,
-    required this.controller,
+    this.controller,
     this.margin = const EdgeInsets.symmetric(horizontal: 20),
     this.onChanged,
     this.hintText,
@@ -34,7 +34,7 @@ class MtextField extends StatefulWidget {
   final bool isShakeErrorAnimationActive;
   final bool isSecurity;
   final EdgeInsets margin; 
-  final TextEditingController controller;
+  final TextEditingController? controller;
   final TextInputAction? textInputAction;
   final TextInputType? textInputType;
   final Color? borderColor;
@@ -63,6 +63,17 @@ class _MtextFieldState extends State<MtextField>
   bool isFocused = false;
   bool isShowPassowrd = false;
   final shakeKey = GlobalKey<ShakeWidgetState>();
+  TextEditingController? _textEditingController;
+
+  @override
+  void initState() {
+    if(widget.controller == null){
+      _textEditingController = TextEditingController();
+    }else{
+      _textEditingController = widget.controller;
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +82,7 @@ class _MtextFieldState extends State<MtextField>
     Widget textField = TextFormField(
       expands: widget.expands,
       enabled: widget.enabled,
-      controller: widget.controller,
+      controller: _textEditingController,
       onChanged: widget.onChanged,
       style: GoogleFonts.dmMono(),
       textInputAction: widget.textInputAction,
