@@ -19,6 +19,7 @@ import 'package:vooms/authentication/repository/user_data_local_impl.dart';
 import 'package:vooms/authentication/repository/user_data_remote_impl.dart';
 import 'package:vooms/authentication/repository/user_repository.dart';
 import 'package:vooms/authentication/repository/user_repository_impl.dart';
+import 'package:vooms/bottom_nav_bar/theme_cubit/theme_cubit.dart';
 import 'package:vooms/chat/chat_repository/chat_service.dart';
 import 'package:vooms/chat/chat_repository/chat_service_impl.dart';
 import 'package:vooms/profile/pages/cubit/profile_cubit.dart';
@@ -67,4 +68,5 @@ Future<void> setupServiceLocator() async {
   sl.registerFactory(() => SignUpCubit(sl<AuthRepository>()));
   sl.registerFactory(() => SignInCubit(sl<AuthRepository>()));
   sl.registerFactory(() => AppStateCubit(sl<AuthRepository>()));
+  sl.registerFactory(() => ThemeCubit());
 }

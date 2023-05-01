@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:vooms/activity/pages/tutor_cubit/tutor_cubit.dart';
 import 'package:vooms/activity/pages/tutor_detail_page.dart';
 import 'package:vooms/activity/repository/tutor_entity.dart';
+import 'package:vooms/bottom_nav_bar/theme_cubit/theme_cubit.dart';
 import 'package:vooms/profile/pages/cubit/profile_cubit.dart';
 import 'package:vooms/profile/pages/profile_page.dart';
 import 'package:vooms/shareds/components/color_rundom.dart';
@@ -141,7 +142,7 @@ class _TutorCardTile extends StatelessWidget {
               Text(
                 "${entity.tutorDetails.popularity.rating}",
               ).toBoldText(
-                color: Theme.of(context).hintColor, 
+                color: Theme.of(context).hintColor,
               ),
             ],
           ),
@@ -206,7 +207,7 @@ class _TutorCardTile extends StatelessWidget {
     );
   }
 
-  BoxDecoration _setDecoration (BuildContext context) => BoxDecoration(
+  BoxDecoration _setDecoration(BuildContext context) => BoxDecoration(
       border: Border.all(color: UIColorConstant.accentGrey1),
       borderRadius: BorderRadius.circular(10),
       color: Theme.of(context).backgroundColor);
@@ -252,7 +253,9 @@ class _BuildAppBar extends StatelessWidget {
       child: GestureDetector(
         onTap: () {
           var route = CupertinoPageRoute(
-              builder: ((context) =>  ProfilePage(profileCubit: profileCubit,)));
+              builder: ((context) => ProfilePage(
+                    profileCubit: profileCubit,
+                  )));
           Navigator.push(context, route);
         },
         child: Row(children: [
@@ -268,6 +271,36 @@ class _BuildAppBar extends StatelessWidget {
             ],
           ),
           const Spacer(),
+          BlocBuilder<ThemeCubit, ThemeState>(
+            builder: (context, state) {
+              return Container(
+                height: 40,
+                width: 40,
+                decoration: BoxDecoration(
+                    border: Border.all(color: Theme.of(context).dividerColor),
+                    borderRadius: BorderRadius.circular(50),
+                    color: Theme.of(context).backgroundColor),
+                child: IconButton(
+                    onPressed: () {
+                      switch(state.themeStatus){
+                        case ThemeStatus.light:
+                          context.read<ThemeCubit>().setTheme(ThemeStatus.dark);
+                          break;
+                        case ThemeStatus.dark:
+                            context.read<ThemeCubit>().setTheme(ThemeStatus.light);
+                          break;
+                      }
+                    },
+                    icon: Icon(
+                     state.themeStatus == ThemeStatus.light ? Icons.sunny : Icons.nights_stay_outlined,
+                      color: Theme.of(context).iconTheme.color,
+                    )),
+              );
+            },
+          ),
+          const SizedBox(
+            width: 10,
+          ),
           Container(
             height: 40,
             width: 40,

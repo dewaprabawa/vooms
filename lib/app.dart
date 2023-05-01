@@ -6,75 +6,30 @@ import 'package:vooms/authentication/pages/blocs/signup_cubit/sign_up_cubit.dart
 import 'package:vooms/authentication/pages/sign_in_page.dart';
 import 'package:vooms/authentication/repository/auth_repository.dart';
 import 'package:vooms/bottom_nav_bar/main_bottom_nav.dart';
+import 'package:vooms/bottom_nav_bar/theme_cubit/theme_cubit.dart';
 import 'package:vooms/dependency.dart';
 import 'package:vooms/shareds/general_helper/ui_color_constants.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-
 class App extends StatelessWidget {
   App({Key? key}) : super(key: key);
-
-
   @override
   Widget build(BuildContext context) {
-    final lightTheme = ThemeData(
-            bottomNavigationBarTheme: BottomNavigationBarThemeData(
-              backgroundColor: UIColorConstant.nativeWhite,
-              elevation: 0.5,
-              selectedLabelStyle: GoogleFonts.dmMono(fontWeight: FontWeight.bold),
-              unselectedLabelStyle: GoogleFonts.dmMono(fontWeight: FontWeight.w400),
-              selectedItemColor: UIColorConstant.materialPrimaryRed,
-              selectedIconTheme: IconThemeData(color: UIColorConstant.materialPrimaryRed),
-            ),
-            textTheme: TextTheme(
-              displayMedium:  GoogleFonts.dmMono(fontWeight: FontWeight.w500),
-              displayLarge: GoogleFonts.dmMono(fontWeight: FontWeight.bold),
-              displaySmall:  GoogleFonts.dmMono(fontWeight: FontWeight.w100),
-              ),
-            iconTheme: IconThemeData(color: UIColorConstant.materialPrimaryRed),
-            appBarTheme: const AppBarTheme(color: UIColorConstant.nativeWhite),
-            scaffoldBackgroundColor: UIColorConstant.backgroundColorGrey,
-            primarySwatch: UIColorConstant.materialPrimaryBlue,
-            hintColor: UIColorConstant.nativeGrey,
-            dividerColor: UIColorConstant.accentGrey1,
-            accentColor: UIColorConstant.primaryRed,
-            primaryColor: UIColorConstant.primaryBlue,
-            backgroundColor: UIColorConstant.nativeWhite,
-            fontFamily: "dmMono");
-            
-     final darkTheme =  ThemeData(
-            bottomNavigationBarTheme: BottomNavigationBarThemeData(
-              backgroundColor: UIColorConstant.nativeWhite,
-              elevation: 0.5,
-              selectedLabelStyle: GoogleFonts.dmMono(fontWeight: FontWeight.bold),
-              unselectedLabelStyle: GoogleFonts.dmMono(fontWeight: FontWeight.w400),
-              selectedItemColor: UIColorConstant.materialPrimaryRed,
-              selectedIconTheme: IconThemeData(color: UIColorConstant.materialPrimaryRed),
-            ),
-            textTheme: TextTheme(
-              displayMedium:  GoogleFonts.dmMono(fontWeight: FontWeight.w500),
-              displayLarge: GoogleFonts.dmMono(fontWeight: FontWeight.bold),
-              displaySmall:  GoogleFonts.dmMono(fontWeight: FontWeight.w100),
-              ),
-            iconTheme: IconThemeData(color: UIColorConstant.materialPrimaryRed),
-            appBarTheme: const AppBarTheme(color: UIColorConstant.nativeWhite),
-            scaffoldBackgroundColor: UIColorConstant.backgroundColorGrey,
-            primarySwatch: UIColorConstant.materialPrimaryBlue,
-            hintColor: UIColorConstant.accentGrey1,
-            accentColor: UIColorConstant.primaryRed,
-            primaryColor: UIColorConstant.primaryBlue,
-            backgroundColor: UIColorConstant.nativeWhite,
-            fontFamily: "dmMono");      
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (context) => sl<SignInCubit>()),
         BlocProvider(create: (context) => sl<SignUpCubit>()),
         BlocProvider(create: (context) => sl<AppStateCubit>()),
+        BlocProvider(create: (context) => sl<ThemeCubit>()..setTheme(ThemeStatus.light)),
       ],
-      child: MaterialApp(
-        title: 'Vooms',
-        theme: lightTheme,
-        home: const OnStartUpPage(),
+      child: BlocBuilder<ThemeCubit, ThemeState>(
+        builder: (context, state) {
+          return MaterialApp(
+            title: 'Vooms',
+            theme: state.currentTheme,
+            home: const OnStartUpPage(),
+          );
+        },
       ),
     );
   }
@@ -92,7 +47,7 @@ class _OnStartUpPageState extends State<OnStartUpPage> {
   void initState() {
     if (mounted) {
       sl<AuthRepository>().listenAuthChanges().listen((event) {
-         context.read<AppStateCubit>().startListentStateChanges(event);
+        context.read<AppStateCubit>().startListentStateChanges(event);
       });
     }
     super.initState();
