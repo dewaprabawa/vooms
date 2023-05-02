@@ -15,6 +15,7 @@ import 'package:vooms/shareds/components/app_dialog.dart';
 import 'package:vooms/shareds/components/m_filled_button.dart';
 import 'package:vooms/shareds/components/m_outline_button.dart';
 import 'package:vooms/shareds/components/m_text_field.dart';
+import 'package:vooms/shareds/general_helper/text_extension.dart';
 import 'package:vooms/shareds/general_helper/ui_asset_constant.dart';
 import 'package:vooms/shareds/general_helper/ui_color_constants.dart';
 
@@ -83,14 +84,14 @@ class _SignInPageState extends State<SignInPage> {
                       left: 20, right: 100, bottom: 20, top: 20),
                   child: Text(
                     WordingAuthConstants.labelHeaderSignIn,
-                    style: GoogleFonts.dmMono().copyWith(
-                        color: Colors.black,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700),
+                  ).toBoldText(
+                    fontSize: 20,
                   ),
                 ),
                 const SizedBox(height: 5.0),
                 MtextField(
+                  color: Theme.of(context).backgroundColor,
+                  borderColor: Theme.of(context).dividerColor,
                   textInputAction: TextInputAction.next,
                   hintText: WordingAuthConstants.labelHintEmail,
                   isShakeErrorAnimationActive: true,
@@ -105,6 +106,8 @@ class _SignInPageState extends State<SignInPage> {
                 ),
                 const SizedBox(height: 5.0),
                 MtextField(
+                  color: Theme.of(context).backgroundColor,
+                  borderColor: Theme.of(context).dividerColor,
                   isSecurity: state.isSecurity,
                   textInputAction: TextInputAction.next,
                   hintText: WordingAuthConstants.labelhintPassword,
@@ -151,9 +154,7 @@ class _SignInPageState extends State<SignInPage> {
                         },
                         child: Text(WordingAuthConstants.labelForgotPassword,
                             style: GoogleFonts.dmMono(
-                              color: Colors.black,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w300,
+                              fontWeight: FontWeight.w500,
                               decoration: TextDecoration.underline,
                             )),
                       ),
@@ -181,9 +182,9 @@ class _SignInPageState extends State<SignInPage> {
                 ),
                 const SizedBox(height: 15.0),
                 Center(
-                  child: Text('Atau buat akun dengan',
-                      style:
-                          GoogleFonts.dmMono(color: Colors.grey, fontSize: 13)),
+                  child: const Text(
+                    'Atau buat akun dengan',
+                  ).toNormalText(color: Theme.of(context).hintColor),
                 ),
                 const SizedBox(height: 15.0),
                 MoutlineButoon(
@@ -194,6 +195,17 @@ class _SignInPageState extends State<SignInPage> {
                   leadingChild: Image.asset(UIAssetConstants.googleButtonImage),
                   onPressed: () async {
                     await context.read<SignUpCubit>().loginWithGoogle();
+                  },
+                ),
+                 const SizedBox(height: 15.0),
+                  MoutlineButoon(
+                  width: double.infinity,
+                  height: 45,
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  text: WordingAuthConstants.labelButtonFacebook,
+                  leadingChild: Image.asset(UIAssetConstants.facebookButtonImage),
+                  onPressed: () async {
+                    await context.read<SignUpCubit>().loginWithFacebook();
                   },
                 ),
                 TextButton(

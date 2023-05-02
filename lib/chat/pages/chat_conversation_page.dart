@@ -88,7 +88,7 @@ class _ChatConversationPageState extends State<ChatConversationPage> {
     return Scaffold(
       appBar: AppBar(
         elevation: 0.0,
-        backgroundColor: UIColorConstant.nativeWhite,
+        backgroundColor: Theme.of(context).backgroundColor,
         title: const Text("Chats").toNormalText(fontSize: 18),
       ),
       body: SafeArea(

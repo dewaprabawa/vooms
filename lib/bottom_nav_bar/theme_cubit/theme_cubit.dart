@@ -12,8 +12,8 @@ class ThemeCubit extends Cubit<ThemeState> {
   ThemeCubit() : super(const ThemeState());
 
   FutureOr<void> setTheme(ThemeStatus status) {
-    final lightTheme = ThemeData(
-        bottomNavigationBarTheme: BottomNavigationBarThemeData(
+    
+    final bottomNavigationBarTheme = BottomNavigationBarThemeData(
           backgroundColor: UIColorConstant.nativeWhite,
           elevation: 0.5,
           selectedLabelStyle: GoogleFonts.dmMono(fontWeight: FontWeight.bold),
@@ -21,12 +21,17 @@ class ThemeCubit extends Cubit<ThemeState> {
           selectedItemColor: UIColorConstant.materialPrimaryRed,
           selectedIconTheme:
               IconThemeData(color: UIColorConstant.materialPrimaryRed),
-        ),
-        textTheme: TextTheme(
+        );
+
+    final textTheme = TextTheme(
           displayMedium: GoogleFonts.dmMono(fontWeight: FontWeight.w500),
           displayLarge: GoogleFonts.dmMono(fontWeight: FontWeight.bold),
           displaySmall: GoogleFonts.dmMono(fontWeight: FontWeight.w100),
-        ),
+        );    
+
+    final lightTheme = ThemeData(
+        bottomNavigationBarTheme: bottomNavigationBarTheme,
+        textTheme: textTheme,
         iconTheme: IconThemeData(color: UIColorConstant.materialPrimaryRed),
         appBarTheme: const AppBarTheme(color: UIColorConstant.nativeWhite),
         scaffoldBackgroundColor: UIColorConstant.backgroundColorGrey,

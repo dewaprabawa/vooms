@@ -14,4 +14,5 @@ class WordingAuthConstants{
   static String labelhintPassword = "ex: ***********";
   static String labelHasNotHaveAccount = "Belum mempunyai akun?";
   static String labelButtonGoogle = "Google";
+   static String labelButtonFacebook = "Facebook";
 }

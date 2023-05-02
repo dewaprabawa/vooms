@@ -100,6 +100,8 @@ class UserDataException implements Exception {}
 class TutorDataException implements Exception {}
 class CourseDataException implements Exception {}
 
+class LoginWithFacebookException implements Exception {}
+
 class LogInWithGoogleException implements Exception {
   /// {@macro log_in_with_google_failure}
   const LogInWithGoogleException([

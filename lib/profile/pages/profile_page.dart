@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:vooms/authentication/pages/blocs/app_state_cubit/app_state_cubit.dart';
 import 'package:vooms/authentication/repository/user_entity.dart';
-import 'package:vooms/dependency.dart';
 import 'package:vooms/profile/pages/cubit/profile_cubit.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:vooms/shareds/components/app_dialog.dart';
@@ -52,11 +51,11 @@ class _ProfilePageState extends State<ProfilePage> {
       ],
       child: Scaffold(
         appBar: AppBar(
-          elevation: 0.0,
-          backgroundColor: UIColorConstant.backgroundColorGrey,
+          elevation: 1.0,
+          backgroundColor: Theme.of(context).backgroundColor,
           title: const Text("Profile").toNormalText(fontSize: 18),
         ),
-        backgroundColor: UIColorConstant.backgroundColorGrey,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: Column(
           children: [
             BlocBuilder<ProfileCubit, ProfileState>(
@@ -86,22 +85,23 @@ class _ProfilePageState extends State<ProfilePage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                       SizedBox(
+                      const SizedBox(
                         height: 5,
                       ),
-                       ListTile(
-                        title: const Text("Profile")
-                            .toBoldText(color: UIColorConstant.nativeBlack),
-                            trailing: Icon(Icons.person_pin_circle_sharp, color: UIColorConstant.nativeBlack,),
+                      ListTile(
+                        title: const Text("Profile").toBoldText(),
+                        trailing: Icon(
+                          Icons.person_pin_circle_sharp,
+                        ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 5,
                       ),
                       ListTile(
                         title: Text('Email').toNormalText(fontSize: 15),
                         subtitle: Text(
                           '${widget.profileCubit.state.entity?.email}',
-                        ).toNormalText(color: UIColorConstant.nativeGrey),
+                        ).toNormalText(color: Theme.of(context).hintColor),
                       ),
                       const Divider(
                         height: 1,
@@ -110,7 +110,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         title: Text('Phone').toNormalText(fontSize: 15),
                         subtitle: Text(
                           '+62${widget.profileCubit.state.entity?.phone}',
-                        ).toNormalText(color: UIColorConstant.nativeGrey),
+                        ).toNormalText(color: Theme.of(context).hintColor),
                       ),
                       const Divider(
                         height: 1,
@@ -119,36 +119,34 @@ class _ProfilePageState extends State<ProfilePage> {
                         title: Text('Address').toNormalText(fontSize: 15),
                         subtitle: Text(
                           '${widget.profileCubit.state.entity?.address}',
-                        ).toNormalText(color: UIColorConstant.nativeGrey),
+                        ).toNormalText(color: Theme.of(context).hintColor),
                       ),
                       const Divider(
                         height: 1,
                       ),
-                     const SizedBox(
+                      const SizedBox(
                         height: 5,
                       ),
-                       ListTile(
-                        title: const Text("Settings")
-                            .toBoldText(color: UIColorConstant.nativeBlack),
-                            trailing: Icon(Icons.settings, color: UIColorConstant.nativeBlack,),
+                      ListTile(
+                        title: const Text("Settings").toBoldText(),
+                        trailing: const Icon(Icons.settings),
                       ),
                       const SizedBox(
                         height: 5,
                       ),
-                       ListTile(
-                        title: const Text("Theme")
-                            .toNormalText(color: UIColorConstant.nativeBlack),
-                        trailing: Icon(Icons.chevron_right_rounded, color: UIColorConstant.nativeBlack,),
+                      ListTile(
+                        title: const Text("Theme").toNormalText(),
+                        trailing: Icon(
+                          Icons.chevron_right_rounded,
+                        ),
                       ),
                       const Divider(
                         height: 1,
                       ),
                       ListTile(
-                        title: const Text("Private Policy")
-                            .toNormalText(color: UIColorConstant.nativeBlack),
+                        title: const Text("Private Policy").toNormalText(),
                         trailing: const Icon(
                           Icons.chevron_right_rounded,
-                          color: UIColorConstant.nativeBlack,
                         ),
                       ),
                       const Divider(
@@ -156,13 +154,15 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       ListTile(
                         onTap: () async {
-                          await context.read<AppStateCubit>().signOut();
+                          _showBottomSheet(context, () async {
+                            await context.read<AppStateCubit>().signOut();
+                          });
                         },
-                        title: const Text("Sign out").toBoldText(
-                            color: UIColorConstant.primaryRed),
-                        trailing: const Icon(
+                        title: const Text("Sign out")
+                            .toBoldText(color: Theme.of(context).accentColor),
+                        trailing: Icon(
                           Icons.chevron_right_rounded,
-                          color: UIColorConstant.primaryRed,
+                          color: Theme.of(context).accentColor,
                         ),
                       ),
                       const Divider(
@@ -178,6 +178,59 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
     );
   }
+
+  void _showBottomSheet(BuildContext context, VoidCallback callback) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.3,
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              ListTile(
+                onTap: () async {},
+                subtitle: Padding(
+                  padding: const EdgeInsets.only(top: 20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    OutlinedButton(
+                      onPressed: callback,
+                      child: const Text("Yes")
+                          .toBoldText(color: UIColorConstant.materialPrimaryRed)),
+                    const SizedBox(width: 20,),
+                    TextButton(
+                      onPressed: (){
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text("No")
+                          .toBoldText(color: UIColorConstant.primaryGreen))      
+                  ],),
+                ),
+                title: Row(
+                  children: [
+                    const Icon(
+                      Icons.info,
+                      size: 25,
+                    ),
+                    const SizedBox(width:10,),
+                    Expanded(
+                      child: const Text(
+                        "Are you sure to sign out the account?",
+                      ).toBoldText(),
+                    )
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 }
 
 class _ErrorTextMessage extends StatelessWidget {
@@ -187,7 +240,7 @@ class _ErrorTextMessage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Text(text),
+      child: Text(text).toBoldText(),
     );
   }
 }

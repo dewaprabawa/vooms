@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -31,12 +32,13 @@ final GetIt sl = GetIt.instance;
 Future<void> setupServiceLocator() async {
 
   sl.registerLazySingleton<FirebaseAuth>(() => FirebaseAuth.instance);
+  sl.registerLazySingleton<FacebookAuth>(() => FacebookAuth.instance);
   sl.registerLazySingleton<GoogleSignIn>(() => GoogleSignIn());
   sl.registerLazySingleton<FirebaseFirestore>(() => FirebaseFirestore.instance);
   sl.registerLazySingleton<FirebaseStorage>(() => FirebaseStorage.instance);
 
 
-  sl.registerLazySingleton<AuthService>(() => AuthServicesImpl(sl(), sl()));
+  sl.registerLazySingleton<AuthService>(() => AuthServicesImpl(sl(), sl(), sl()));
 
   sl.registerLazySingleton<UserDBRemoteService>(() => UserDataRemoteImpl(sl()));
 

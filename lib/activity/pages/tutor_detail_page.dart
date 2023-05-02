@@ -5,6 +5,7 @@ import 'package:vooms/activity/repository/tutor_entity.dart';
 import 'package:vooms/chat/pages/chat_room_page.dart';
 import 'package:vooms/shareds/components/color_rundom.dart';
 import 'package:vooms/shareds/components/m_cached_image.dart';
+import 'package:vooms/shareds/general_helper/text_extension.dart';
 import 'package:vooms/shareds/general_helper/ui_color_constants.dart';
 
 class TutorDetailPage extends StatelessWidget {
@@ -14,23 +15,21 @@ class TutorDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: UIColorConstant.backgroundColorGrey,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         centerTitle: false,
-        backgroundColor: UIColorConstant.nativeWhite,
+        backgroundColor: Theme.of(context).backgroundColor,
         elevation: 0.0,
         title: Text(
           entity.fullname,
-          style: GoogleFonts.dmMono(
-              fontWeight: FontWeight.w500, color: UIColorConstant.nativeBlack),
-        ),
+        ).toNormalText(),
       ),
       bottomNavigationBar: Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).backgroundColor,
             boxShadow: [
               BoxShadow(
-                  color: UIColorConstant.accentGrey3,
+                  color: Theme.of(context).dividerColor,
                   spreadRadius: 1,
                   blurRadius: 1)
             ],
@@ -46,9 +45,9 @@ class TutorDetailPage extends StatelessWidget {
                             ));
                     Navigator.push(context, route);
                   },
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.chat_bubble,
-                    color: UIColorConstant.softOrange,
+                    color: Theme.of(context).iconTheme.color,
                   )),
             ],
           )),
@@ -58,6 +57,7 @@ class TutorDetailPage extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
           children: [
             _TutorDetail(
+              fee: entity.tutorDetails.wages.amount.toString(),
               imageUrl: entity.photoUrl,
               location: entity.address,
               name: entity.fullname,
@@ -90,12 +90,14 @@ class TutorDetailPage extends StatelessWidget {
 class _TutorDetail extends StatelessWidget {
   const _TutorDetail({
     super.key,
+    required this.fee,
     required this.imageUrl,
     required this.name,
     required this.rating,
     required this.location,
     required this.courseList,
   });
+  final String fee;
   final String imageUrl;
   final String name;
   final String rating;
@@ -128,21 +130,27 @@ class _TutorDetail extends StatelessWidget {
                     ),
                     Text(
                       rating,
-                      style: GoogleFonts.dmMono(),
-                    ),
+                    ).toNormalText(),
                   ],
                 ),
                 const SizedBox(
                   height: 5,
                 ),
-                Text(
-                  location,
-                  style: GoogleFonts.dmMono(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                    color: UIColorConstant.nativeGrey,
-                  ),
+                 Row(children: [
+                  const Icon(
+                Icons.location_on,
+                size: 18,
+              ),
+                Flexible(
+                  child: Text(
+                    location,
+                  ).toNormalText(color: Theme.of(context).hintColor),
                 ),
+                 ],),
+                 const SizedBox(
+                  height: 5,
+                ),
+               Text(fee).toNormalText(),  
                 const SizedBox(
                   height: 5,
                 ),
@@ -166,17 +174,13 @@ class _TutorOverview extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             "Overview",
-            style: GoogleFonts.dmMono(
-                fontWeight: FontWeight.w500,
-                color: UIColorConstant.nativeBlack),
-          ),
+          ).toBoldText(),
           const SizedBox(
             height: 5,
           ),
-          Text(overview,
-              style: GoogleFonts.dmMono(color: UIColorConstant.nativeGrey)),
+          Text(overview).toNormalText(color: Theme.of(context).hintColor),
         ],
       ),
     );
@@ -194,12 +198,9 @@ class _TutorSkill extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             "Skill",
-            style: GoogleFonts.dmMono(
-                fontWeight: FontWeight.w500,
-                color: UIColorConstant.nativeBlack),
-          ),
+          ).toBoldText(),
           const SizedBox(
             height: 5,
           ),
@@ -249,12 +250,9 @@ class _CourseDetail extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-        Text(
+        const Text(
               "Courses",
-              style: GoogleFonts.dmMono(
-                  fontWeight: FontWeight.w500,
-                  color: UIColorConstant.nativeBlack),
-            ),
+            ).toBoldText(),
             const SizedBox(
               height: 5,
             ),
@@ -270,7 +268,7 @@ class _CourseDetail extends StatelessWidget {
               height: 100,
               width: 200,
               ),
-              Text(tutorDetails.courseDetailList[index].subjectName, style: GoogleFonts.dmMono(color: UIColorConstant.nativeBlack,)),
+              Text(tutorDetails.courseDetailList[index].subjectName,).toNormalText(),
             ],),
           );
         })),

@@ -8,7 +8,6 @@ import 'package:vooms/authentication/repository/auth_repository.dart';
 import 'package:vooms/bottom_nav_bar/main_bottom_nav.dart';
 import 'package:vooms/bottom_nav_bar/theme_cubit/theme_cubit.dart';
 import 'package:vooms/dependency.dart';
-import 'package:vooms/shareds/general_helper/ui_color_constants.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class App extends StatelessWidget {

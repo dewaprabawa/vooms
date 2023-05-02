@@ -119,6 +119,18 @@ class SignUpCubit extends Cubit<SignUpState> {
     });
   }
 
+  Future<void> loginWithFacebook() async {
+    emit(state.copyWith(status: FormzStatus.submissionInProgress));
+    final data = await _authRepository.facebookSignIn();
+    data.fold((error) {
+      emit(state.copyWith(
+          errorMessage: error.errorMessage,
+          status: FormzStatus.submissionFailure));
+    }, (_) {
+      emit(state.copyWith(status: FormzStatus.submissionSuccess));
+    });
+  }
+
   Future<void> signUp() async {
     if (state.status.isInvalid) return;
     emit(state.copyWith(status: FormzStatus.submissionInProgress));

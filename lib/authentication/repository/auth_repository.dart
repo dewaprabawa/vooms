@@ -26,6 +26,9 @@ abstract class AuthRepository {
   // A function for signing in a user with their Google account.
   Future<Either<Failure, Unit>> googleSignIn();
 
+  // A function for signing in a user with their Facebook account.
+  Future<Either<Failure, Unit>> facebookSignIn();
+
   // A function for signing out the current user.
   Future<Either<Failure, Unit>> signOutUser();
 
@@ -126,6 +129,22 @@ class AuthRepositoryImpl with CheckMethod implements AuthRepository {
     }
   }
 
+
+  @override
+  Future<Either<Failure, Unit>> facebookSignIn() async  {
+    try {
+      final model = await _authService.signInWithFacebook();
+      // Save the user's credentials to Firestore
+      _saveCredentialUser(model, null, null, null);
+      debugPrint("==facebookSignIn==");
+      return right(unit);
+    } on LogInWithGoogleException catch (e) {
+      return left(AuthenticationError(errorMessage: e.message));
+    } on UserDataException catch (e) {
+      return left(AuthenticationError(errorMessage: e.toString()));
+    }
+  }
+
   @override
   Stream<bool> listenAuthChanges() {
     return _authService.onAuthStateChanged.map((event) {
@@ -216,4 +235,5 @@ class AuthRepositoryImpl with CheckMethod implements AuthRepository {
       return Left(AuthenticationError(errorMessage: e.message));
      }
   }
+
 }

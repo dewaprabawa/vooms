@@ -54,6 +54,7 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
+                <string>fb246387314574462</string>
 				<string>com.googleusercontent.apps.86391809946-eppa1gsni03o52cbfbn6c7dbf7920iie</string>
 			</array>
 		</dict>
@@ -62,5 +63,16 @@
 	<string>camera use</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>gallery use</string>
+    <key>FacebookAppID</key>
+    <string>246387314574462</string>
+    <key>FacebookClientToken</key>
+    <string>e476fac4891a8b139349d1eb33c4f44e</string>
+    <key>FacebookDisplayName</key>
+    <string>vooms</string>
+    <key>LSApplicationQueriesSchemes</key>
+    <array>
+      <string>fbapi</string>
+      <string>fb-messenger-share-api</string>
+    </array>
 </dict>
 </plist>
